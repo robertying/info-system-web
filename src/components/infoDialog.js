@@ -192,11 +192,11 @@ class InfoDialog extends React.Component {
                 />
               </FormControl>
               <FormControl className={classes.textField}>
-                <InputLabel htmlFor="adornment-password">重复新密码</InputLabel>
+                <InputLabel htmlFor="new-adornment-password">重复新密码</InputLabel>
                 <Input
                   required
                   spellCheck="false"
-                  id="adornment-password"
+                  id="new-adornment-password"
                   type={this.state.showPassword ? "text" : "password"}
                   value={this.state.passwordRepeat}
                   onChange={this.handleChange("passwordRepeat")}

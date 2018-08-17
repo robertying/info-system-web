@@ -45,7 +45,9 @@ class ProfilePage extends React.Component {
       name: "",
       id: "",
       class: "",
-      secondaryTranscriptFile: ""
+      email: "",
+      phone: "",
+      degree: ""
     },
     dialogOpen: false
   };
