@@ -56,7 +56,7 @@ const login = (id, password) => {
   return fetch(
     process.env.NODE_ENV !== "production"
       ? "/auth"
-      : "http://60.205.216.15:443/api/auth",
+      : "https://info.eesast.com/api/auth",
     {
       method: "POST",
       headers: {
@@ -91,7 +91,7 @@ const authedFetch = (url, options) => {
   return fetch(
     process.env.NODE_ENV !== "production"
       ? url
-      : "http://60.205.216.15:443/api" + url,
+      : "https://info.eesast.com/api" + url,
     options
   );
 };
