@@ -180,7 +180,6 @@ class MentorsPage extends React.Component {
         }
       })
       .then(res => {
-        console.log(res);
         this.setState({ applicationsForTeacher: res });
       });
 
@@ -194,7 +193,6 @@ class MentorsPage extends React.Component {
           }
         })
         .then(res => {
-          console.log(res);
           this.setState({ applications: res });
         });
     }
@@ -303,7 +301,6 @@ class MentorsPage extends React.Component {
   };
 
   handleConfirmDialogOpen = index => {
-    console.log(index);
     this.setState({ willConfirmApplicationIndex: index });
     this.setState({ confirmDialogOpen: true });
   };
@@ -315,7 +312,6 @@ class MentorsPage extends React.Component {
       const id = this.state.applicationsForTeacher[
         this.state.willConfirmApplicationIndex
       ].id;
-      console.log(id);
       let body = this.state.applicationsForTeacher[
         this.state.willConfirmApplicationIndex
       ];
@@ -667,7 +663,6 @@ class MentorsPage extends React.Component {
                       </TableRow>
                       {this.state.applications
                         .filter(n => {
-                          console.log(n.applicantId);
                           return (
                             n.applicantName
                               .toLowerCase()

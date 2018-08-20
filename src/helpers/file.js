@@ -19,7 +19,6 @@ const upload = (isPublic, file) => {
 };
 
 const download = (isPublic, filename) => {
-  console.log(filename);
   return fetch((isPublic ? "/files/public/" : "/files/private/") + filename)
     .then(res => res.blob())
     .then(blob => FileSaver.saveAs(blob, trimFilename(filename)));
