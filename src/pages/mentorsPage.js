@@ -81,13 +81,17 @@ class MentorsPage extends React.Component {
       mentors: [],
       page: 0,
       rowsPerPage: 5,
-      searchedName: "",
+      applicantName: "",
+      applicantId: "",
+      teacherName: "",
+      applicationStatus: "",
       status: {},
       event: {
         activeStep: 3
       },
       deleteDialogOpen: false,
       applications: [],
+      applicationsForTeacher: [],
       confirmDialogOpen: false,
       willConfirmApplicationIndex: 0,
       terminateButtonDisabled: false,
@@ -177,8 +181,23 @@ class MentorsPage extends React.Component {
       })
       .then(res => {
         console.log(res);
-        this.setState({ applications: res });
+        this.setState({ applicationsForTeacher: res });
       });
+
+    if (auth.getRole() === "reviewer") {
+      fetch("/applications", {
+        method: "GET"
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+        })
+        .then(res => {
+          console.log(res);
+          this.setState({ applications: res });
+        });
+    }
   };
 
   handleNewEventDialogClose = body => {
@@ -214,8 +233,8 @@ class MentorsPage extends React.Component {
     this.setState({ rowsPerPage: event.target.value });
   };
 
-  handleInputChange = e => {
-    this.setState({ searchedName: e.target.value });
+  handleInputChange = name => e => {
+    this.setState({ [name]: e.target.value });
   };
 
   handleSnackbarPopup = message => {
@@ -293,10 +312,11 @@ class MentorsPage extends React.Component {
     if (choice === "no") {
       this.setState({ confirmDialogOpen: false });
     } else if (choice === "yes") {
-      const id = this.state.applications[this.state.willConfirmApplicationIndex]
-        .id;
+      const id = this.state.applicationsForTeacher[
+        this.state.willConfirmApplicationIndex
+      ].id;
       console.log(id);
-      let body = this.state.applications[
+      let body = this.state.applicationsForTeacher[
         this.state.willConfirmApplicationIndex
       ];
       delete body.id;
@@ -310,9 +330,9 @@ class MentorsPage extends React.Component {
       }).then(res => {
         if (res.status === 204) {
           body.id = id;
-          let applications = this.state.applications;
-          applications[this.state.willConfirmApplicationIndex] = body;
-          this.setState({ applications });
+          let applicationsForTeacher = this.state.applicationsForTeacher;
+          applicationsForTeacher[this.state.willConfirmApplicationIndex] = body;
+          this.setState({ applicationsForTeacher });
           this.setState({ confirmDialogOpen: false });
           this.props.handleSnackbarPopup("申请状态已更新");
         } else {
@@ -394,11 +414,11 @@ class MentorsPage extends React.Component {
               <AlertDialog
                 hasCancel
                 title={
-                  this.state.applications[
+                  this.state.applicationsForTeacher[
                     this.state.willConfirmApplicationIndex
                   ] === undefined
                     ? ""
-                    : this.state.applications[
+                    : this.state.applicationsForTeacher[
                         this.state.willConfirmApplicationIndex
                       ].applicantName
                 }
@@ -423,8 +443,8 @@ class MentorsPage extends React.Component {
             />
             <WithAuthTerminateButton />
             <Paper className={classes.expansionPanel}>
-              {auth.getRole() !== "teacher" ? null : this.state.applications
-                .length === 0 ? (
+              {auth.getRole() !== "teacher" ? null : this.state
+                .applicationsForTeacher.length === 0 ? (
                 <Typography
                   className={classes.text}
                   variant="headline"
@@ -433,7 +453,7 @@ class MentorsPage extends React.Component {
                   暂无申请
                 </Typography>
               ) : (
-                this.state.applications.map((n, index) => {
+                this.state.applicationsForTeacher.map((n, index) => {
                   return (
                     <ExpansionPanel key={index}>
                       <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -492,7 +512,8 @@ class MentorsPage extends React.Component {
                 </div>
               </Paper>
             )}
-            {auth.getRole() === "teacher" ? null : (
+            {auth.getRole() === "teacher" ||
+            auth.getRole() === "reviewer" ? null : (
               <Paper className={classes.paper}>
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table}>
@@ -510,8 +531,8 @@ class MentorsPage extends React.Component {
                           <Input
                             className={classes.searchBar}
                             disableUnderline={true}
-                            placeholder="... 按姓名查找"
-                            onChange={this.handleInputChange}
+                            placeholder="按姓名查找"
+                            onChange={this.handleInputChange("teacherName")}
                           />
                         </TableCell>
                         <TableCell />
@@ -522,7 +543,7 @@ class MentorsPage extends React.Component {
                         .filter(n => {
                           return n.name
                             .toLowerCase()
-                            .includes(this.state.searchedName.toLowerCase());
+                            .includes(this.state.teacherName.toLowerCase());
                         })
                         .slice(
                           page * rowsPerPage,
@@ -577,9 +598,7 @@ class MentorsPage extends React.Component {
                             this.state.mentors.filter(n => {
                               return n.name
                                 .toLowerCase()
-                                .includes(
-                                  this.state.searchedName.toLowerCase()
-                                );
+                                .includes(this.state.teacherName.toLowerCase());
                             }).length
                           }
                           rowsPerPage={rowsPerPage}
@@ -597,6 +616,147 @@ class MentorsPage extends React.Component {
                 </div>
               </Paper>
             )}
+            {auth.getRole() === "reviewer" ? (
+              <Paper className={classes.paper}>
+                <div className={classes.tableWrapper}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>申请者</TableCell>
+                        <TableCell>学号</TableCell>
+                        <TableCell>申请导师</TableCell>
+                        <TableCell>状态</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按申请者查找"
+                            onChange={this.handleInputChange("applicantName")}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按学号查找"
+                            onChange={this.handleInputChange("applicantId")}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按导师查找"
+                            onChange={this.handleInputChange("teacherName")}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按状态查找"
+                            onChange={this.handleInputChange(
+                              "applicationStatus"
+                            )}
+                          />
+                        </TableCell>
+                      </TableRow>
+                      {this.state.applications
+                        .filter(n => {
+                          console.log(n.applicantId);
+                          return (
+                            n.applicantName
+                              .toLowerCase()
+                              .includes(
+                                this.state.applicantName.toLowerCase()
+                              ) &&
+                            n.applicantId
+                              .toString()
+                              .includes(this.state.applicantId.toString()) &&
+                            Object.keys(n.mentor.status)[0]
+                              .toLowerCase()
+                              .includes(this.state.teacherName.toLowerCase()) &&
+                            Object.values(n.mentor.status)[0]
+                              .toLowerCase()
+                              .includes(
+                                this.state.applicationStatus.toLowerCase()
+                              )
+                          );
+                        })
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map(n => {
+                          return (
+                            <TableRow key={n.id}>
+                              <TableCell>{n.applicantName}</TableCell>
+                              <TableCell>{n.applicantId}</TableCell>
+                              <TableCell>
+                                {Object.keys(n.mentor.status)[0]}
+                              </TableCell>
+                              <TableCell>
+                                {Object.values(n.mentor.status)[0]}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      {emptyRows > 0 && (
+                        <TableRow style={{ height: 48 * emptyRows }}>
+                          <TableCell colSpan={6} />
+                        </TableRow>
+                      )}
+                    </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TablePagination
+                          labelRowsPerPage="每页行数"
+                          colSpan={3}
+                          count={
+                            this.state.applications.filter(n => {
+                              return (
+                                n.applicantName
+                                  .toLowerCase()
+                                  .includes(
+                                    this.state.applicantName.toLowerCase()
+                                  ) &&
+                                n.applicantId
+                                  .toString()
+                                  .includes(
+                                    this.state.applicantId.toString()
+                                  ) &&
+                                Object.keys(n.mentor.status)[0]
+                                  .toLowerCase()
+                                  .includes(
+                                    this.state.teacherName.toLowerCase()
+                                  ) &&
+                                Object.values(n.mentor.status)[0]
+                                  .toLowerCase()
+                                  .includes(
+                                    this.state.applicationStatus.toLowerCase()
+                                  )
+                              );
+                            }).length
+                          }
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          labelDisplayedRows={({ from, to, count }) =>
+                            `${from} - ${to} 条 / 共 ${count} 条`
+                          }
+                          onChangePage={this.handleChangePage}
+                          onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                          ActionsComponent={TablePaginationActionsWrapped}
+                        />
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
+                </div>
+              </Paper>
+            ) : null}
           </div>
         </div>
       </div>
