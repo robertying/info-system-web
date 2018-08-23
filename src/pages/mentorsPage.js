@@ -87,7 +87,7 @@ class MentorsPage extends React.Component {
       applicationStatus: "",
       status: {},
       event: {
-        activeStep: 3
+        activeStep: 2
       },
       deleteDialogOpen: false,
       applications: [],
@@ -156,7 +156,7 @@ class MentorsPage extends React.Component {
           this.setState({ status });
         }
         fetch(
-          this.state.event.activeStep === 1
+          this.state.event.activeStep === 0
             ? "/users/teachers?notReceiveFull=" + year
             : "/users/teachers",
           {
@@ -556,14 +556,9 @@ class MentorsPage extends React.Component {
                                   buttonDisabled={
                                     auth.getRole() === "reviewer"
                                       ? true
-                                      : (this.state.event.activeStep === 0 &&
-                                          Object.values(
-                                            this.state.status
-                                          )[0] === "未申请") ||
-                                        (this.state.event.activeStep === 1 &&
-                                          Object.values(
-                                            this.state.status
-                                          )[0] === "未通过")
+                                      : this.state.event.activeStep === 0 &&
+                                        Object.values(this.state.status)[0] ===
+                                          "未申请"
                                         ? false
                                         : true
                                   }
