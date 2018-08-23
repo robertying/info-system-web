@@ -5,17 +5,17 @@
   "author": "Robert Ying <yingrui205@gmail.com>",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^1.5.0",
-    "@material-ui/icons": "^2.0.2",
+    "@material-ui/core": "^1.5.1",
+    "@material-ui/icons": "^2.0.3",
     "date-fns": "2.0.0-alpha.7",
     "file-saver": "latest",
     "jwt-decode": "latest",
-    "material-ui-pickers": "^1.0.0-rc.12",
+    "material-ui-pickers": "^1.0.0-rc.13",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-infinite-scroller": "latest",
     "react-router-dom": "latest",
-    "react-scripts": "latest",
+    "react-scripts": "^1.1.5",
     "xlsx": "^0.13.4"
   },
   "scripts": {
