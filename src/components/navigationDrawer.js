@@ -42,7 +42,9 @@ const styles = theme => ({
   },
   appBar: {
     position: "absolute",
-    zIndex: theme.zIndex.drawer + 1
+    zIndex: theme.zIndex.drawer + 1,
+    display: "flex",
+    justifyContent: "space-between"
   },
   navIconHide: {
     [theme.breakpoints.up("md")]: {
@@ -54,8 +56,7 @@ const styles = theme => ({
     width: 240,
     [theme.breakpoints.up("md")]: {
       position: "relative"
-    },
-    flex: 1
+    }
   },
   flexGrow: {
     flex: 1
@@ -158,7 +159,7 @@ class NavigationDrawer extends React.Component {
                 <MenuIcon />
               </IconButton>
               <Typography
-                className={classes.flex}
+                className={classes.flexGrow}
                 variant="title"
                 color="inherit"
                 noWrap
