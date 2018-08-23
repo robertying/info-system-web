@@ -38,7 +38,7 @@ const styles = theme => ({
     height: "100vh"
   },
   flex: {
-    flex: 1
+    display: "flex"
   },
   appBar: {
     position: "absolute",
@@ -54,7 +54,8 @@ const styles = theme => ({
     width: 240,
     [theme.breakpoints.up("md")]: {
       position: "relative"
-    }
+    },
+    flex: 1
   },
   flexGrow: {
     flex: 1
@@ -179,7 +180,7 @@ class NavigationDrawer extends React.Component {
               {drawer}
             </Drawer>
           </Hidden>
-          <Hidden smDown implementation="css">
+          <Hidden smDown implementation="css" className={classes.flex}>
             <Drawer
               variant="permanent"
               open
