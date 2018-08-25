@@ -86,6 +86,7 @@ class MentorsPage extends React.Component {
       rowsPerPage: 5,
       applicantName: "",
       applicantId: "",
+      class: "",
       teacherName: "",
       applicationStatus: "",
       status: {},
@@ -187,7 +188,21 @@ class MentorsPage extends React.Component {
           }
         })
         .then(res => {
-          this.setState({ applications: res });
+          let applications = res;
+          applications.forEach((application, index) => {
+            fetch(`/users/students/${application.applicantId}`, {
+              method: "GET"
+            })
+              .then(res => {
+                if (res.ok) {
+                  return res.json();
+                }
+              })
+              .then(res => {
+                applications[index].class = res.class;
+              });
+          });
+          this.setState({ applications });
         });
     }
   };
@@ -619,6 +634,7 @@ class MentorsPage extends React.Component {
                     <TableHead>
                       <TableRow>
                         <TableCell>申请者</TableCell>
+                        <TableCell>班级</TableCell>
                         <TableCell>学号</TableCell>
                         <TableCell>申请导师</TableCell>
                         <TableCell>状态</TableCell>
@@ -632,6 +648,14 @@ class MentorsPage extends React.Component {
                             disableUnderline={true}
                             placeholder="按申请者查找"
                             onChange={this.handleInputChange("applicantName")}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按班级查找"
+                            onChange={this.handleInputChange("class")}
                           />
                         </TableCell>
                         <TableCell>
@@ -672,6 +696,9 @@ class MentorsPage extends React.Component {
                             n.applicantId
                               .toString()
                               .includes(this.state.applicantId.toString()) &&
+                            n.class
+                              .toString()
+                              .includes(this.state.class.toString()) &&
                             Object.keys(n.mentor.status)[0]
                               .toLowerCase()
                               .includes(this.state.teacherName.toLowerCase()) &&
@@ -690,6 +717,7 @@ class MentorsPage extends React.Component {
                           return (
                             <TableRow key={n.id}>
                               <TableCell>{n.applicantName}</TableCell>
+                              <TableCell>{n.class}</TableCell>
                               <TableCell>{n.applicantId}</TableCell>
                               <TableCell>
                                 {Object.keys(n.mentor.status)[0]}
