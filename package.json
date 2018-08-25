@@ -16,9 +16,11 @@
     "react-infinite-scroller": "latest",
     "react-router-dom": "latest",
     "react-scripts": "^1.1.5",
+    "source-map-explorer": "^1.6.0",
     "xlsx": "^0.13.4"
   },
   "scripts": {
+    "analyze": "source-map-explorer build/static/js/main.*",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

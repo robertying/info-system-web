@@ -72,8 +72,8 @@ class XLSXGenerator extends React.Component {
   render = () => {
     const { classes } = this.props;
 
-    const DownloadButton = () => {
-      return (
+    return (
+      <div>
         <Button
           color="primary"
           variant="raised"
@@ -83,14 +83,6 @@ class XLSXGenerator extends React.Component {
         >
           下载表格
         </Button>
-      );
-    };
-
-    const WithAuthButton = withAuth(DownloadButton, ["reviewer", "admin"]);
-
-    return (
-      <div>
-        <WithAuthButton />
       </div>
     );
   };

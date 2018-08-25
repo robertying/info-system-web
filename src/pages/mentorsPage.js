@@ -24,7 +24,6 @@ import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import XlsxGenerator from "../components/xlsxGenerator";
 import year from "../config/year";
 
 const fetch = auth.authedFetch;
@@ -190,21 +189,23 @@ class MentorsPage extends React.Component {
             return res.json();
           }
         })
-        .then(res => {
+        .then(async res => {
           let applications = res;
-          applications.forEach((application, index) => {
-            fetch(`/users/students/${application.applicantId}`, {
-              method: "GET"
-            })
-              .then(res => {
-                if (res.ok) {
-                  return res.json();
-                }
+          await Promise.all(
+            applications.map(async (application, index) => {
+              await fetch(`/users/students/${application.applicantId}`, {
+                method: "GET"
               })
-              .then(res => {
-                applications[index].class = res.class;
-              });
-          });
+                .then(res => {
+                  if (res.ok) {
+                    return res.json();
+                  }
+                })
+                .then(res => {
+                  applications[index].class = res.class;
+                });
+            })
+          );
           this.setState({ applications });
         });
     }
@@ -403,6 +404,11 @@ class MentorsPage extends React.Component {
     };
 
     const WithAuthTerminateButton = withAuth(TerminateButton, ["teacher"]);
+
+    let WithAuthXlsxGenerator = null;
+    import("../components/xlsxGenerator").then(XlsxGenerator => {
+      WithAuthXlsxGenerator = withAuth(XlsxGenerator, ["reviewer", "admin"]);
+    });
 
     return (
       <div className={classes.root}>
@@ -632,7 +638,7 @@ class MentorsPage extends React.Component {
             )}
             {auth.getRole() === "reviewer" ? (
               <div>
-                <XlsxGenerator />
+                <WithAuthXlsxGenerator />
                 <Paper className={classes.paper}>
                   <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
