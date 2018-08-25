@@ -24,6 +24,7 @@ import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import XlsxGenerator from "../components/xlsxGenerator";
 import year from "../config/year";
 
 const fetch = auth.authedFetch;
@@ -527,105 +528,113 @@ class MentorsPage extends React.Component {
             )}
             {auth.getRole() === "teacher" ||
             auth.getRole() === "reviewer" ? null : (
-              <Paper className={classes.paper}>
-                <div className={classes.tableWrapper}>
-                  <Table className={classes.table}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>姓名</TableCell>
-                        <TableCell>院系</TableCell>
-                        <TableCell>邮箱</TableCell>
-                        <TableCell>申请数</TableCell>
-                        <TableCell>操作</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按姓名查找"
-                            onChange={this.handleInputChange("teacherName")}
-                          />
-                        </TableCell>
-                        <TableCell />
-                        <TableCell />
-                        <TableCell />
-                        <TableCell />
-                      </TableRow>
-                      {this.state.mentors
-                        .filter(n => {
-                          return n.name
-                            .toLowerCase()
-                            .includes(this.state.teacherName.toLowerCase());
-                        })
-                        .slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
-                        .map(n => {
-                          return (
-                            <TableRow key={n.id}>
-                              <TableCell>{n.name}</TableCell>
-                              <TableCell>{n.department}</TableCell>
-                              <TableCell>{n.email}</TableCell>
-                              <TableCell>{n.totalApplications}</TableCell>
-                              <TableCell>
-                                <FormDialog
-                                  buttonDisabled={
-                                    auth.getRole() === "reviewer"
-                                      ? true
-                                      : this.state.event.activeStep === 0 &&
-                                        Object.values(this.state.status)[0] ===
-                                          "未申请"
-                                        ? false
-                                        : true
-                                  }
-                                  buttonContent="申请"
-                                  formType="mentor"
-                                  userfulData={n}
-                                  handleDialogClose={e =>
-                                    this.handleDialogClose(n.name, e)
-                                  }
-                                  handleSnackbarPopup={this.handleSnackbarPopup}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      {emptyRows > 0 && (
-                        <TableRow style={{ height: 48 * emptyRows }}>
-                          <TableCell colSpan={6} />
+              <div>
+                <XlsxGenerator />
+                <Paper className={classes.paper}>
+                  <div className={classes.tableWrapper}>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>姓名</TableCell>
+                          <TableCell>院系</TableCell>
+                          <TableCell>邮箱</TableCell>
+                          <TableCell>申请数</TableCell>
+                          <TableCell>操作</TableCell>
                         </TableRow>
-                      )}
-                    </TableBody>
-                    <TableFooter>
-                      <TableRow>
-                        <TablePagination
-                          labelRowsPerPage="每页行数"
-                          colSpan={3}
-                          count={
-                            this.state.mentors.filter(n => {
-                              return n.name
-                                .toLowerCase()
-                                .includes(this.state.teacherName.toLowerCase());
-                            }).length
-                          }
-                          rowsPerPage={rowsPerPage}
-                          page={page}
-                          labelDisplayedRows={({ from, to, count }) =>
-                            `${from} - ${to} 条 / 共 ${count} 条`
-                          }
-                          onChangePage={this.handleChangePage}
-                          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                          ActionsComponent={TablePaginationActionsWrapped}
-                        />
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                </div>
-              </Paper>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell>
+                            <Input
+                              className={classes.searchBar}
+                              disableUnderline={true}
+                              placeholder="按姓名查找"
+                              onChange={this.handleInputChange("teacherName")}
+                            />
+                          </TableCell>
+                          <TableCell />
+                          <TableCell />
+                          <TableCell />
+                          <TableCell />
+                        </TableRow>
+                        {this.state.mentors
+                          .filter(n => {
+                            return n.name
+                              .toLowerCase()
+                              .includes(this.state.teacherName.toLowerCase());
+                          })
+                          .slice(
+                            page * rowsPerPage,
+                            page * rowsPerPage + rowsPerPage
+                          )
+                          .map(n => {
+                            return (
+                              <TableRow key={n.id}>
+                                <TableCell>{n.name}</TableCell>
+                                <TableCell>{n.department}</TableCell>
+                                <TableCell>{n.email}</TableCell>
+                                <TableCell>{n.totalApplications}</TableCell>
+                                <TableCell>
+                                  <FormDialog
+                                    buttonDisabled={
+                                      auth.getRole() === "reviewer"
+                                        ? true
+                                        : this.state.event.activeStep === 0 &&
+                                          Object.values(
+                                            this.state.status
+                                          )[0] === "未申请"
+                                          ? false
+                                          : true
+                                    }
+                                    buttonContent="申请"
+                                    formType="mentor"
+                                    userfulData={n}
+                                    handleDialogClose={e =>
+                                      this.handleDialogClose(n.name, e)
+                                    }
+                                    handleSnackbarPopup={
+                                      this.handleSnackbarPopup
+                                    }
+                                  />
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        {emptyRows > 0 && (
+                          <TableRow style={{ height: 48 * emptyRows }}>
+                            <TableCell colSpan={6} />
+                          </TableRow>
+                        )}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TablePagination
+                            labelRowsPerPage="每页行数"
+                            colSpan={3}
+                            count={
+                              this.state.mentors.filter(n => {
+                                return n.name
+                                  .toLowerCase()
+                                  .includes(
+                                    this.state.teacherName.toLowerCase()
+                                  );
+                              }).length
+                            }
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            labelDisplayedRows={({ from, to, count }) =>
+                              `${from} - ${to} 条 / 共 ${count} 条`
+                            }
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            ActionsComponent={TablePaginationActionsWrapped}
+                          />
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  </div>
+                </Paper>
+              </div>
             )}
             {auth.getRole() === "reviewer" ? (
               <Paper className={classes.paper}>

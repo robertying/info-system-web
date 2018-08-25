@@ -2,10 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
-// import { upload } from "../helpers/file";
 import XLSX from "xlsx";
 import auth from "../helpers/auth";
+import withAuth from "../components/withAuthHOC";
 const fetch = auth.authedFetch;
+
 const styles = theme => ({
   button: {
     margin: theme.spacing.unit,
@@ -33,65 +34,45 @@ class XLSXGenerator extends React.Component {
 
   handleClick = e => {
     fetch("/applications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      }
+      method: "GET"
     })
-      .then(res => res.json())
       .then(res => {
-        console.log(res);
-        let applications = [];
-        const head = [
-          "姓名",
-          "学号",
-          "荣誉数",
-          "学业优秀奖",
-          "科技创新优秀奖",
-          "学习进步奖"
-        ];
-        applications.push(head);
-        res.map(n => {
-          let application = [];
-          Object.keys(n.status.honor).map(m => {
-            return (application[head.indexOf(m)] = n.status.honor[m]);
-          });
-          return applications.push(application);
+        if (res.ok) {
+          return res.json();
+        }
+      })
+      .then(async res => {
+        let applications = res;
+        await Promise.all(files.map(async (file) => {
+          applications.map( async (application, index) => {
+            await fetch(`/users/students/${application.applicantId}`, {
+              method: "GET"
+            })
+              .then(res => {
+                if (res.ok) {
+                  return res.json();
+                }
+              })
+              .then(res => {
+                applications[index].class = res.class;
+              });
         });
-        console.log(applications);
+
+        const head = ["申请者", "班级", "学号", "申请导师", "状态"];
+        applications.unshift(head);
+
         const worksheet = XLSX.utils.aoa_to_sheet(applications);
         let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "奖学金");
-        XLSX.writeFile(workbook, "奖学金.xlsx");
+        XLSX.utils.book_append_sheet(workbook, worksheet, "新生导师申请");
+        XLSX.writeFile(workbook, "新生导师申请.xlsx");
       });
-  };
-
-  handleFileChange = e => {
-    this.setState({ file: e.target.files[0] });
-
-    const rABS = true;
-    const files = e.target.files,
-      f = files[0];
-    const reader = new FileReader();
-    reader.onload = e => {
-      let data = e.target.result;
-      if (!rABS) data = new Uint8Array(data);
-      const workbook = XLSX.read(data, { type: rABS ? "binary" : "array" });
-
-      const firstWorksheet = workbook.Sheets[workbook.SheetNames[0]];
-      data = XLSX.utils.sheet_to_json(firstWorksheet, { header: 1 });
-
-      console.log(data);
-    };
-    if (rABS) reader.readAsBinaryString(f);
-    else reader.readAsArrayBuffer(f);
   };
 
   render = () => {
     const { classes } = this.props;
 
-    return (
-      <div>
+    const DownloadButton = () => {
+      return (
         <Button
           color="primary"
           variant="raised"
@@ -101,6 +82,14 @@ class XLSXGenerator extends React.Component {
         >
           下载表格
         </Button>
+      );
+    };
+
+    const WithAuthButton = withAuth(DownloadButton, ["reviewer", "admin"]);
+
+    return (
+      <div>
+        <WithAuthButton />
       </div>
     );
   };
