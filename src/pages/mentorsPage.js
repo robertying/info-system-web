@@ -478,7 +478,7 @@ class MentorsPage extends React.Component {
                       <ExpansionPanelDetails>
                         <div>
                           <Typography className={classes.linebreak}>
-                            {`附言：${n.mentor.contents.statement}\n邮箱：${
+                            {`附言：\n${n.mentor.contents.statement}\n\n邮箱：${
                               n.email
                             }\n手机：${n.phone}`}
                           </Typography>
