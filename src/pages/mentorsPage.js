@@ -33,20 +33,19 @@ const styles = theme => ({
   root: {
     padding: theme.spacing.unit * 3,
     overflow: "auto",
-    height: "100vh"
+    height: `calc(100vh - 113px)`
   },
   flex: {
     display: "flex",
     justifyContent: "space-between"
   },
   container: {
-    maxWidth: 700,
+    maxWidth: 900,
+    width: "90%",
     marginLeft: "auto",
     marginRight: "auto"
   },
-  tables: {
-    marginBottom: 105
-  },
+  tables: {},
   button: {
     margin: theme.spacing.unit
   },

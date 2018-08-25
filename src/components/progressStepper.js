@@ -17,7 +17,7 @@ const styles = theme => ({
     width: "100%"
   },
   paper: theme.mixins.gutters({
-    maxWidth: 700,
+    maxWidth: 900,
     overflowX: "auto",
     paddingTop: 16,
     paddingBottom: 16,
