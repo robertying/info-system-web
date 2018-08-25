@@ -459,9 +459,13 @@ class MentorsPage extends React.Component {
             <Paper className={classes.expansionPanel}>
               {auth.getRole() !== "teacher" ? null : this.state
                 .applicationsForTeacher.length === 0 ? (
-                <div className={classes.text}>
-                  <Typography>暂无申请</Typography>
-                </div>
+                <ExpansionPanel>
+                  <ExpansionPanelSummary>
+                    <Typography className={classes.heading}>
+                      暂无申请
+                    </Typography>
+                  </ExpansionPanelSummary>
+                </ExpansionPanel>
               ) : (
                 this.state.applicationsForTeacher.map((n, index) => {
                   return (
