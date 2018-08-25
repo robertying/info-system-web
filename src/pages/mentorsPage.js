@@ -541,6 +541,7 @@ class MentorsPage extends React.Component {
                         <TableCell>姓名</TableCell>
                         <TableCell>院系</TableCell>
                         <TableCell>邮箱</TableCell>
+                        <TableCell>申请数</TableCell>
                         <TableCell>操作</TableCell>
                       </TableRow>
                     </TableHead>
@@ -554,6 +555,7 @@ class MentorsPage extends React.Component {
                             onChange={this.handleInputChange("teacherName")}
                           />
                         </TableCell>
+                        <TableCell />
                         <TableCell />
                         <TableCell />
                         <TableCell />
@@ -574,6 +576,7 @@ class MentorsPage extends React.Component {
                               <TableCell>{n.name}</TableCell>
                               <TableCell>{n.department}</TableCell>
                               <TableCell>{n.email}</TableCell>
+                              <TableCell>{n.totalApplications}</TableCell>
                               <TableCell>
                                 <FormDialog
                                   buttonDisabled={
