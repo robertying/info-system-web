@@ -68,7 +68,13 @@ const login = (id, password) => {
       })
     }
   )
-    .then(res => res.json())
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw new Error("Login failed!");
+      }
+    })
     .then(res => {
       setToken(res.token);
       setRole(res.role);
