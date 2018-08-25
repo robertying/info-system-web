@@ -159,22 +159,24 @@ class MentorsPage extends React.Component {
             return res.json();
           }
         })
-        .then(res => {
+        .then(async res => {
           let applications = res;
-          applications.forEach((application, index) => {
-            fetch(`/users/students/${application.applicantId}`, {
-              method: "GET"
-            })
-              .then(res => {
-                if (res.ok) {
-                  return res.json();
-                }
+          await Promise.all(
+            applications.map(async (application, index) => {
+              await fetch(`/users/students/${application.applicantId}`, {
+                method: "GET"
               })
-              .then(res => {
-                applications[index].email = res.email;
-                applications[index].phone = res.phone;
-              });
-          });
+                .then(res => {
+                  if (res.ok) {
+                    return res.json();
+                  }
+                })
+                .then(res => {
+                  applications[index].email = res.email;
+                  applications[index].phone = res.phone;
+                });
+            })
+          );
           this.setState({ applicationsForTeacher: applications });
         });
     }
@@ -528,6 +530,107 @@ class MentorsPage extends React.Component {
             )}
             {auth.getRole() === "teacher" ||
             auth.getRole() === "reviewer" ? null : (
+              <Paper className={classes.paper}>
+                <div className={classes.tableWrapper}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>姓名</TableCell>
+                        <TableCell>院系</TableCell>
+                        <TableCell>邮箱</TableCell>
+                        <TableCell>申请数</TableCell>
+                        <TableCell>操作</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>
+                          <Input
+                            className={classes.searchBar}
+                            disableUnderline={true}
+                            placeholder="按姓名查找"
+                            onChange={this.handleInputChange("teacherName")}
+                          />
+                        </TableCell>
+                        <TableCell />
+                        <TableCell />
+                        <TableCell />
+                        <TableCell />
+                      </TableRow>
+                      {this.state.mentors
+                        .filter(n => {
+                          return n.name
+                            .toLowerCase()
+                            .includes(this.state.teacherName.toLowerCase());
+                        })
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .map(n => {
+                          return (
+                            <TableRow key={n.id}>
+                              <TableCell>{n.name}</TableCell>
+                              <TableCell>{n.department}</TableCell>
+                              <TableCell>{n.email}</TableCell>
+                              <TableCell>{n.totalApplications}</TableCell>
+                              <TableCell>
+                                <FormDialog
+                                  buttonDisabled={
+                                    auth.getRole() === "reviewer"
+                                      ? true
+                                      : this.state.event.activeStep === 0 &&
+                                        Object.values(this.state.status)[0] ===
+                                          "未申请"
+                                        ? false
+                                        : true
+                                  }
+                                  buttonContent="申请"
+                                  formType="mentor"
+                                  userfulData={n}
+                                  handleDialogClose={e =>
+                                    this.handleDialogClose(n.name, e)
+                                  }
+                                  handleSnackbarPopup={this.handleSnackbarPopup}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      {emptyRows > 0 && (
+                        <TableRow style={{ height: 48 * emptyRows }}>
+                          <TableCell colSpan={6} />
+                        </TableRow>
+                      )}
+                    </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TablePagination
+                          labelRowsPerPage="每页行数"
+                          colSpan={3}
+                          count={
+                            this.state.mentors.filter(n => {
+                              return n.name
+                                .toLowerCase()
+                                .includes(this.state.teacherName.toLowerCase());
+                            }).length
+                          }
+                          rowsPerPage={rowsPerPage}
+                          page={page}
+                          labelDisplayedRows={({ from, to, count }) =>
+                            `${from} - ${to} 条 / 共 ${count} 条`
+                          }
+                          onChangePage={this.handleChangePage}
+                          onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                          ActionsComponent={TablePaginationActionsWrapped}
+                        />
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
+                </div>
+              </Paper>
+            )}
+            {auth.getRole() === "reviewer" ? (
               <div>
                 <XlsxGenerator />
                 <Paper className={classes.paper}>
@@ -535,11 +638,11 @@ class MentorsPage extends React.Component {
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell>姓名</TableCell>
-                          <TableCell>院系</TableCell>
-                          <TableCell>邮箱</TableCell>
-                          <TableCell>申请数</TableCell>
-                          <TableCell>操作</TableCell>
+                          <TableCell>申请者</TableCell>
+                          <TableCell>班级</TableCell>
+                          <TableCell>学号</TableCell>
+                          <TableCell>申请导师</TableCell>
+                          <TableCell>状态</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -548,20 +651,70 @@ class MentorsPage extends React.Component {
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
-                              placeholder="按姓名查找"
+                              placeholder="按申请者查找"
+                              onChange={this.handleInputChange("applicantName")}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              className={classes.searchBar}
+                              disableUnderline={true}
+                              placeholder="按班级查找"
+                              onChange={this.handleInputChange("class")}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              className={classes.searchBar}
+                              disableUnderline={true}
+                              placeholder="按学号查找"
+                              onChange={this.handleInputChange("applicantId")}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              className={classes.searchBar}
+                              disableUnderline={true}
+                              placeholder="按导师查找"
                               onChange={this.handleInputChange("teacherName")}
                             />
                           </TableCell>
-                          <TableCell />
-                          <TableCell />
-                          <TableCell />
-                          <TableCell />
+                          <TableCell>
+                            <Input
+                              className={classes.searchBar}
+                              disableUnderline={true}
+                              placeholder="按状态查找"
+                              onChange={this.handleInputChange(
+                                "applicationStatus"
+                              )}
+                            />
+                          </TableCell>
                         </TableRow>
-                        {this.state.mentors
+                        {this.state.applications
                           .filter(n => {
-                            return n.name
-                              .toLowerCase()
-                              .includes(this.state.teacherName.toLowerCase());
+                            return (
+                              n.applicantName
+                                .toLowerCase()
+                                .includes(
+                                  this.state.applicantName.toLowerCase()
+                                ) &&
+                              n.class
+                                .toString()
+                                .includes(this.state.class.toString()) &&
+                              n.applicantId
+                                .toString()
+                                .includes(this.state.applicantId.toString()) &&
+                              Object.keys(n.mentor.status)[0]
+                                .toLowerCase()
+                                .includes(
+                                  this.state.teacherName.toLowerCase()
+                                ) &&
+                              Object.values(n.mentor.status)[0]
+                                .toLowerCase()
+                                .includes(
+                                  this.state.applicationStatus.toLowerCase()
+                                )
+                            );
                           })
                           .slice(
                             page * rowsPerPage,
@@ -570,32 +723,14 @@ class MentorsPage extends React.Component {
                           .map(n => {
                             return (
                               <TableRow key={n.id}>
-                                <TableCell>{n.name}</TableCell>
-                                <TableCell>{n.department}</TableCell>
-                                <TableCell>{n.email}</TableCell>
-                                <TableCell>{n.totalApplications}</TableCell>
+                                <TableCell>{n.applicantName}</TableCell>
+                                <TableCell>{n.class}</TableCell>
+                                <TableCell>{n.applicantId}</TableCell>
                                 <TableCell>
-                                  <FormDialog
-                                    buttonDisabled={
-                                      auth.getRole() === "reviewer"
-                                        ? true
-                                        : this.state.event.activeStep === 0 &&
-                                          Object.values(
-                                            this.state.status
-                                          )[0] === "未申请"
-                                          ? false
-                                          : true
-                                    }
-                                    buttonContent="申请"
-                                    formType="mentor"
-                                    userfulData={n}
-                                    handleDialogClose={e =>
-                                      this.handleDialogClose(n.name, e)
-                                    }
-                                    handleSnackbarPopup={
-                                      this.handleSnackbarPopup
-                                    }
-                                  />
+                                  {Object.keys(n.mentor.status)[0]}
+                                </TableCell>
+                                <TableCell>
+                                  {Object.values(n.mentor.status)[0]}
                                 </TableCell>
                               </TableRow>
                             );
@@ -612,12 +747,32 @@ class MentorsPage extends React.Component {
                             labelRowsPerPage="每页行数"
                             colSpan={3}
                             count={
-                              this.state.mentors.filter(n => {
-                                return n.name
-                                  .toLowerCase()
-                                  .includes(
-                                    this.state.teacherName.toLowerCase()
-                                  );
+                              this.state.applications.filter(n => {
+                                return (
+                                  n.applicantName
+                                    .toLowerCase()
+                                    .includes(
+                                      this.state.applicantName.toLowerCase()
+                                    ) &&
+                                  n.class
+                                    .toString()
+                                    .includes(this.state.class.toString()) &&
+                                  n.applicantId
+                                    .toString()
+                                    .includes(
+                                      this.state.applicantId.toString()
+                                    ) &&
+                                  Object.keys(n.mentor.status)[0]
+                                    .toLowerCase()
+                                    .includes(
+                                      this.state.teacherName.toLowerCase()
+                                    ) &&
+                                  Object.values(n.mentor.status)[0]
+                                    .toLowerCase()
+                                    .includes(
+                                      this.state.applicationStatus.toLowerCase()
+                                    )
+                                );
                               }).length
                             }
                             rowsPerPage={rowsPerPage}
@@ -635,159 +790,6 @@ class MentorsPage extends React.Component {
                   </div>
                 </Paper>
               </div>
-            )}
-            {auth.getRole() === "reviewer" ? (
-              <Paper className={classes.paper}>
-                <div className={classes.tableWrapper}>
-                  <Table className={classes.table}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>申请者</TableCell>
-                        <TableCell>班级</TableCell>
-                        <TableCell>学号</TableCell>
-                        <TableCell>申请导师</TableCell>
-                        <TableCell>状态</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按申请者查找"
-                            onChange={this.handleInputChange("applicantName")}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按班级查找"
-                            onChange={this.handleInputChange("class")}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按学号查找"
-                            onChange={this.handleInputChange("applicantId")}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按导师查找"
-                            onChange={this.handleInputChange("teacherName")}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            className={classes.searchBar}
-                            disableUnderline={true}
-                            placeholder="按状态查找"
-                            onChange={this.handleInputChange(
-                              "applicationStatus"
-                            )}
-                          />
-                        </TableCell>
-                      </TableRow>
-                      {this.state.applications
-                        .filter(n => {
-                          return (
-                            n.applicantName
-                              .toLowerCase()
-                              .includes(
-                                this.state.applicantName.toLowerCase()
-                              ) &&
-                            n.applicantId
-                              .toString()
-                              .includes(this.state.applicantId.toString()) &&
-                            n.class
-                              .toString()
-                              .includes(this.state.class.toString()) &&
-                            Object.keys(n.mentor.status)[0]
-                              .toLowerCase()
-                              .includes(this.state.teacherName.toLowerCase()) &&
-                            Object.values(n.mentor.status)[0]
-                              .toLowerCase()
-                              .includes(
-                                this.state.applicationStatus.toLowerCase()
-                              )
-                          );
-                        })
-                        .slice(
-                          page * rowsPerPage,
-                          page * rowsPerPage + rowsPerPage
-                        )
-                        .map(n => {
-                          return (
-                            <TableRow key={n.id}>
-                              <TableCell>{n.applicantName}</TableCell>
-                              <TableCell>{n.class}</TableCell>
-                              <TableCell>{n.applicantId}</TableCell>
-                              <TableCell>
-                                {Object.keys(n.mentor.status)[0]}
-                              </TableCell>
-                              <TableCell>
-                                {Object.values(n.mentor.status)[0]}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      {emptyRows > 0 && (
-                        <TableRow style={{ height: 48 * emptyRows }}>
-                          <TableCell colSpan={6} />
-                        </TableRow>
-                      )}
-                    </TableBody>
-                    <TableFooter>
-                      <TableRow>
-                        <TablePagination
-                          labelRowsPerPage="每页行数"
-                          colSpan={3}
-                          count={
-                            this.state.applications.filter(n => {
-                              return (
-                                n.applicantName
-                                  .toLowerCase()
-                                  .includes(
-                                    this.state.applicantName.toLowerCase()
-                                  ) &&
-                                n.applicantId
-                                  .toString()
-                                  .includes(
-                                    this.state.applicantId.toString()
-                                  ) &&
-                                Object.keys(n.mentor.status)[0]
-                                  .toLowerCase()
-                                  .includes(
-                                    this.state.teacherName.toLowerCase()
-                                  ) &&
-                                Object.values(n.mentor.status)[0]
-                                  .toLowerCase()
-                                  .includes(
-                                    this.state.applicationStatus.toLowerCase()
-                                  )
-                              );
-                            }).length
-                          }
-                          rowsPerPage={rowsPerPage}
-                          page={page}
-                          labelDisplayedRows={({ from, to, count }) =>
-                            `${from} - ${to} 条 / 共 ${count} 条`
-                          }
-                          onChangePage={this.handleChangePage}
-                          onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                          ActionsComponent={TablePaginationActionsWrapped}
-                        />
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                </div>
-              </Paper>
             ) : null}
           </div>
         </div>
