@@ -43,8 +43,9 @@ class XLSXGenerator extends React.Component {
         .then(async res => {
           let applications = res;
           await Promise.all(
-            applications.map(async (application, index) => {
-              await fetch(`/users/students/${application.applicantId}`, {
+            applications.map(async (n, index) => {
+              let application = [];
+              await fetch(`/users/students/${n.applicantId}`, {
                 method: "GET"
               })
                 .then(res => {
@@ -53,7 +54,12 @@ class XLSXGenerator extends React.Component {
                   }
                 })
                 .then(res => {
-                  applications[index].class = res.class;
+                  application.push(res.name);
+                  application.push(res.class);
+                  application.push(res.id);
+                  application.push(Object.keys(n.mentor.status)[0]);
+                  application.push(Object.values(n.mentor.status)[0]);
+                  applications[index] = application;
                 });
             })
           );
