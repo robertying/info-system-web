@@ -70,7 +70,10 @@ const styles = theme => ({
   flexButton: {
     marginTop: theme.spacing.unit * 3
   },
-  deleteButton: {}
+  deleteButton: {},
+  linebreak: {
+    display: "inline-block"
+  }
 });
 
 class MentorsPage extends React.Component {
@@ -180,7 +183,20 @@ class MentorsPage extends React.Component {
         }
       })
       .then(res => {
-        this.setState({ applicationsForTeacher: res });
+        let applications = res;
+        applications.forEach((application, index) => {
+          fetch(`/users/students/${application.applicantId}`, { method: "GET" })
+            .then(res => {
+              if (res.ok) {
+                return res.json();
+              }
+            })
+            .then(res => {
+              applications[index].email = res.email;
+              applications[index].phone = res.phone;
+            });
+        });
+        this.setState({ applicationsForTeacher: applications });
       });
 
     if (auth.getRole() === "reviewer") {
@@ -463,7 +479,14 @@ class MentorsPage extends React.Component {
                       </ExpansionPanelSummary>
                       <ExpansionPanelDetails>
                         <div>
-                          <Typography>{n.mentor.contents.statement}</Typography>
+                          <Typography className={classes.linebreak}>
+                            附言：
+                            {n.mentor.contents.statement}
+                            \n邮箱：
+                            {n.email}
+                            \n手机：
+                            {n.phone}
+                          </Typography>
                           <Button
                             className={classes.flexButton}
                             variant="raised"
