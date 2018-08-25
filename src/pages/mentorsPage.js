@@ -65,7 +65,7 @@ const styles = theme => ({
     width: 100
   },
   text: {
-    margin: theme.spacing.unit * 3
+    margin: theme.spacing.unit * 2
   },
   flexButton: {
     marginTop: theme.spacing.unit * 3
@@ -459,13 +459,9 @@ class MentorsPage extends React.Component {
             <Paper className={classes.expansionPanel}>
               {auth.getRole() !== "teacher" ? null : this.state
                 .applicationsForTeacher.length === 0 ? (
-                <Typography
-                  className={classes.text}
-                  variant="headline"
-                  component="h3"
-                >
-                  暂无申请
-                </Typography>
+                <div className={classes.text}>
+                  <Typography>暂无申请</Typography>
+                </div>
               ) : (
                 this.state.applicationsForTeacher.map((n, index) => {
                   return (
