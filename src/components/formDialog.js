@@ -103,65 +103,69 @@ class FormDialog extends React.Component {
     }
   };
 
-  handleConfirmDialogClose = () => {
-    let body = {};
-    body = this.state.form.postBody;
-    body.applicantId = auth.getId();
-    body.applicantName = auth.getName();
-    body.year = year;
-    body[this.props.formType] = {
-      status: { [this.props.userfulData.name]: "申请中" },
-      contents: { statement: this.state["statement"] }
-    };
-    // this.state.form.dialogContent.map(n => {
-    //   body.contents[n.id] = this.state[n.id];
-    // });
+  handleConfirmDialogClose = choice => {
+    if (choice === "no") {
+      this.setState({ confirmDialogOpen: false });
+    } else if (choice === "yes") {
+      let body = {};
+      body = this.state.form.postBody;
+      body.applicantId = auth.getId();
+      body.applicantName = auth.getName();
+      body.year = year;
+      body[this.props.formType] = {
+        status: { [this.props.userfulData.name]: "申请中" },
+        contents: { statement: this.state["statement"] }
+      };
+      // this.state.form.dialogContent.map(n => {
+      //   body.contents[n.id] = this.state[n.id];
+      // });
 
-    if (this.state.files.length === 0) {
-      return fetch(this.state.form.url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      }).then(res => {
-        if (res.ok) {
-          this.setState({ confirmDialogOpen: false });
-          this.props.handleDialogClose();
-          //this.setState({ buttonDisabled: true });
-          this.handleClose();
-          this.props.handleSnackbarPopup(this.state.form.submittedText);
-        } else {
-          this.props.handleSnackbarPopup("操作失败，请重试");
-        }
-      });
-    } else {
-      let attachments = [];
-      Promise.all(
-        this.state.files.map(file => {
-          return new Promise(res =>
-            upload(this.state.form.isFilePublic, file.data).then(filename => {
-              attachments.push(filename);
-              res(attachments);
-            })
-          );
-        })
-      ).then(res => {
-        body.attachments = attachments;
-        return fetch(this.state.form.postUrl, {
+      if (this.state.files.length === 0) {
+        return fetch(this.state.form.url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify(body)
-        })
-          .then(res => res.json())
-          .then(res => {
-            this.props.handleDialogClose(res);
+        }).then(res => {
+          if (res.ok) {
+            this.setState({ confirmDialogOpen: false });
+            this.props.handleDialogClose();
+            //this.setState({ buttonDisabled: true });
             this.handleClose();
             this.props.handleSnackbarPopup(this.state.form.submittedText);
-          });
-      });
+          } else {
+            this.props.handleSnackbarPopup("操作失败，请重试");
+          }
+        });
+      } else {
+        let attachments = [];
+        Promise.all(
+          this.state.files.map(file => {
+            return new Promise(res =>
+              upload(this.state.form.isFilePublic, file.data).then(filename => {
+                attachments.push(filename);
+                res(attachments);
+              })
+            );
+          })
+        ).then(res => {
+          body.attachments = attachments;
+          return fetch(this.state.form.postUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+          })
+            .then(res => res.json())
+            .then(res => {
+              this.props.handleDialogClose(res);
+              this.handleClose();
+              this.props.handleSnackbarPopup(this.state.form.submittedText);
+            });
+        });
+      }
     }
   };
 
