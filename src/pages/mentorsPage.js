@@ -24,6 +24,7 @@ import ExpansionPanel from "@material-ui/core/ExpansionPanel";
 import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
 import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import XlsxGenerator from "../components/xlsxGenerator";
 import year from "../config/year";
 
 const fetch = auth.authedFetch;
@@ -405,10 +406,10 @@ class MentorsPage extends React.Component {
 
     const WithAuthTerminateButton = withAuth(TerminateButton, ["teacher"]);
 
-    let WithAuthXlsxGenerator = null;
-    import("../components/xlsxGenerator").then(XlsxGenerator => {
-      WithAuthXlsxGenerator = withAuth(XlsxGenerator, ["reviewer", "admin"]);
-    });
+    const WithAuthXlsxGenerator = withAuth(XlsxGenerator, [
+      "reviewer",
+      "admin"
+    ]);
 
     return (
       <div className={classes.root}>

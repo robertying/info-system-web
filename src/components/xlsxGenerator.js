@@ -2,9 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
 import { withStyles } from "@material-ui/core/styles";
-import XLSX from "xlsx";
 import auth from "../helpers/auth";
-import withAuth from "../components/withAuthHOC";
 const fetch = auth.authedFetch;
 
 const styles = theme => ({
@@ -33,40 +31,42 @@ class XLSXGenerator extends React.Component {
   };
 
   handleClick = e => {
-    fetch("/applications", {
-      method: "GET"
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
+    import("xlsx").then(XLSX => {
+      fetch("/applications", {
+        method: "GET"
       })
-      .then(async res => {
-        let applications = res;
-        await Promise.all(
-          applications.map(async (application, index) => {
-            await fetch(`/users/students/${application.applicantId}`, {
-              method: "GET"
-            })
-              .then(res => {
-                if (res.ok) {
-                  return res.json();
-                }
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+        })
+        .then(async res => {
+          let applications = res;
+          await Promise.all(
+            applications.map(async (application, index) => {
+              await fetch(`/users/students/${application.applicantId}`, {
+                method: "GET"
               })
-              .then(res => {
-                applications[index].class = res.class;
-              });
-          })
-        );
+                .then(res => {
+                  if (res.ok) {
+                    return res.json();
+                  }
+                })
+                .then(res => {
+                  applications[index].class = res.class;
+                });
+            })
+          );
 
-        const head = ["申请者", "班级", "学号", "申请导师", "状态"];
-        applications.unshift(head);
+          const head = ["申请者", "班级", "学号", "申请导师", "状态"];
+          applications.unshift(head);
 
-        const worksheet = XLSX.utils.aoa_to_sheet(applications);
-        let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "新生导师申请");
-        XLSX.writeFile(workbook, "新生导师申请.xlsx");
-      });
+          const worksheet = XLSX.utils.aoa_to_sheet(applications);
+          let workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, "新生导师申请");
+          XLSX.writeFile(workbook, "新生导师申请.xlsx");
+        });
+    });
   };
 
   render = () => {
