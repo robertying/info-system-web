@@ -14,6 +14,7 @@ import forms from "../config/forms";
 import { upload } from "../helpers/file";
 import auth from "../helpers/auth";
 import year from "../config/year";
+import AlertDialog from "./alertDialog";
 
 const fetch = auth.authedFetch;
 
@@ -48,7 +49,8 @@ class FormDialog extends React.Component {
       buttonDisabled: this.props.buttonDisabled,
       buttonContent: this.props.buttonContent,
       files: [],
-      form: form
+      form: form,
+      confirmDialogOpen: false
     };
   }
 
@@ -95,9 +97,13 @@ class FormDialog extends React.Component {
       }
     });
     if (!isComplete) {
-      return;
+      this.props.handleSnackbarPopup("请完整填写所有内容");
+    } else {
+      this.setState({ confirmDialogOpen: true });
     }
+  };
 
+  handleConfirmDialogClose = () => {
     let body = {};
     body = this.state.form.postBody;
     body.applicantId = auth.getId();
@@ -120,6 +126,7 @@ class FormDialog extends React.Component {
         body: JSON.stringify(body)
       }).then(res => {
         if (res.ok) {
+          this.setState({ confirmDialogOpen: false });
           this.props.handleDialogClose();
           //this.setState({ buttonDisabled: true });
           this.handleClose();
@@ -207,6 +214,13 @@ class FormDialog extends React.Component {
 
     return (
       <div>
+        <AlertDialog
+          hasCancel
+          title="提交申请"
+          content="是否要提交此申请？（提交申请前请务必与导师进行充分沟通，确定提交后对应导师将收到申请的通知邮件）"
+          open={this.state.confirmDialogOpen}
+          handleClose={this.handleConfirmDialogClose}
+        />
         <Button
           color="primary"
           disabled={this.state.buttonDisabled}

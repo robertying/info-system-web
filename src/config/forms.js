@@ -2,7 +2,7 @@ const mentor = {
   type: "新生导师",
   dialogTitle: "新生导师申请",
   dialogContentText:
-    "请在正式提出申请前，通过邮件与所选择的导师充分沟通，以避免落选",
+    "请在正式提出申请前，通过邮件与所选择的导师充分沟通，以避免落选。请勿直接在网页上编辑附言，以免会话超时导致提交失败。",
   dialogContent: [
     {
       label: "附言",
