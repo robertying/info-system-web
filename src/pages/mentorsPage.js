@@ -115,89 +115,67 @@ class MentorsPage extends React.Component {
         this.setState({ event: res.pop() || {} });
       });
 
-    fetch(`/applications?applicantId=${auth.getId()}`, {
-      method: "GET"
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
+    if (auth.getRole() === "student") {
+      fetch(`/applications?applicantId=${auth.getId()}`, {
+        method: "GET"
       })
-      .then(res => {
-        if (res.length === 0) {
-          this.setState({ status: { "": "未申请" } });
-        } else {
-          const status = res[0].mentor.status;
-          this.setState({ status });
-        }
-        fetch("/users/teachers", {
-          method: "GET"
-        })
-          .then(res => {
-            if (res.ok) {
-              return res.json();
-            }
-          })
-          .then(res =>
-            this.setState({ mentors: res, mentorsCount: res.length })
-          );
-      });
-
-    fetch(`/applications?applicantId=${auth.getId()}`, {
-      method: "GET"
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
-      .then(res => {
-        if (res.length === 0) {
-          this.setState({ status: { "": "未申请" } });
-        } else {
-          const status = res[0].mentor.status;
-          this.setState({ status });
-        }
-        fetch(
-          this.state.event.activeStep === 0
-            ? "/users/teachers?notReceiveFull=" + year
-            : "/users/teachers",
-          {
-            method: "GET"
+        .then(res => {
+          if (res.ok) {
+            return res.json();
           }
-        )
-          .then(res => {
-            if (res.ok) {
-              return res.json();
+        })
+        .then(res => {
+          if (res.length === 0) {
+            this.setState({ status: { "": "未申请" } });
+          } else {
+            const status = res[0].mentor.status;
+            this.setState({ status });
+          }
+          fetch(
+            this.state.event.activeStep === 0
+              ? "/users/teachers?notReceiveFull=" + year
+              : "/users/teachers",
+            {
+              method: "GET"
             }
-          })
-          .then(res =>
-            this.setState({ mentors: res, mentorsCount: res.length })
-          );
-      });
-
-    fetch(`/applications?teacherName=${auth.getName()}`, { method: "GET" })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
-      })
-      .then(res => {
-        let applications = res;
-        applications.forEach((application, index) => {
-          fetch(`/users/students/${application.applicantId}`, { method: "GET" })
+          )
             .then(res => {
               if (res.ok) {
                 return res.json();
               }
             })
-            .then(res => {
-              applications[index].email = res.email;
-              applications[index].phone = res.phone;
-            });
+            .then(res =>
+              this.setState({ mentors: res, mentorsCount: res.length })
+            );
         });
-        this.setState({ applicationsForTeacher: applications });
-      });
+    }
+
+    if (auth.getRole() === "teacher") {
+      fetch(`/applications?teacherName=${auth.getName()}`, { method: "GET" })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+        })
+        .then(res => {
+          let applications = res;
+          applications.forEach((application, index) => {
+            fetch(`/users/students/${application.applicantId}`, {
+              method: "GET"
+            })
+              .then(res => {
+                if (res.ok) {
+                  return res.json();
+                }
+              })
+              .then(res => {
+                applications[index].email = res.email;
+                applications[index].phone = res.phone;
+              });
+          });
+          this.setState({ applicationsForTeacher: applications });
+        });
+    }
 
     if (auth.getRole() === "reviewer") {
       fetch("/applications", {
@@ -507,7 +485,8 @@ class MentorsPage extends React.Component {
                 })
               )}
             </Paper>
-            {Object.values(this.state.status)[0] === "未申请" ? null : (
+            {auth.getRole() !== "student" ||
+            Object.values(this.state.status)[0] === "未申请" ? null : (
               <Paper className={classes.paper}>
                 <div className={classes.tableWrapper}>
                   <Table className={classes.table}>
