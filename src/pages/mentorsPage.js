@@ -73,7 +73,7 @@ const styles = theme => ({
   },
   deleteButton: {},
   linebreak: {
-    display: "inline-block"
+    whiteSpace: "pre-wrap"
   }
 });
 
@@ -488,7 +488,7 @@ class MentorsPage extends React.Component {
                             \n邮箱：
                             ${n.email}
                             \n手机：
-                            ${n.phone}"`}
+                            ${n.phone}`}
                           </Typography>
                           <Button
                             className={classes.flexButton}

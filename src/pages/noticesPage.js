@@ -63,6 +63,9 @@ const styles = theme => ({
   deleteButton: {
     marginTop: -10,
     marginLeft: 5
+  },
+  linebreak: {
+    whiteSpace: "pre-wrap"
   }
 });
 
@@ -223,7 +226,9 @@ class NoticesPage extends React.Component {
                       >
                         {notice.createdBy}
                       </Typography>
-                      <Typography component="p">{notice.content}</Typography>
+                      <Typography component="p" className={classes.linebreak}>
+                        {notice.content}
+                      </Typography>
                     </CardContent>
                     <CardActions>
                       {notice.attachments.length !== 0 ? (
