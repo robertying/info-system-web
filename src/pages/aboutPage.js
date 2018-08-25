@@ -74,6 +74,11 @@ class AboutPage extends React.Component {
               clickable
             />
             <Chip
+              label="谢鹏威・清华大学电子工程系2018级研究生、辅导员"
+              className={classes.chip}
+              clickable
+            />
+            <Chip
               label="王超・清华大学电子工程系2015级研究生、辅导员"
               className={classes.chip}
               clickable
