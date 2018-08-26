@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'node:10-alpine'
-      args '-p 3000:3000'
+      args '-p 4000:4000'
     }
 
   }
@@ -15,6 +15,11 @@ pipeline {
     stage('Build') {
       steps {
         sh 'npm run build'
+      }
+    }
+    stage('Archive') {
+      steps {
+        archiveArtifacts(artifacts: 'build', onlyIfSuccessful: true)
       }
     }
   }
