@@ -257,6 +257,13 @@ class MentorsPage extends React.Component {
     delete status[""];
     status[name] = "申请中";
     this.setState({ status });
+
+    const index = this.state.mentors.findIndex(value => {
+      return value.name === name;
+    });
+    let mentors = this.state.mentors;
+    mentors[index].totalApplications = mentors[index].totalApplications + 1;
+    this.setState({ mentors });
   };
 
   handleDeleteDialogClose = choice => {
