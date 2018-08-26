@@ -53,21 +53,16 @@ const isLoggedIn = () => {
 };
 
 const login = (id, password) => {
-  return fetch(
-    process.env.NODE_ENV !== "production"
-      ? "/auth"
-      : "https://info.thuee.org/api/auth",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: id,
-        password: password
-      })
-    }
-  )
+  return fetch("/auth", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      id: id,
+      password: password
+    })
+  })
     .then(res => {
       if (res.ok) {
         return res.json();
@@ -94,12 +89,7 @@ const authedFetch = (url, options) => {
 
   options["headers"]["x-access-token"] = getToken();
   options["headers"]["x-access-id"] = getId();
-  return fetch(
-    process.env.NODE_ENV !== "production"
-      ? url
-      : "https://info.thuee.org/api" + url,
-    options
-  );
+  return fetch(url, options);
 };
 
 export default {
