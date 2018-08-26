@@ -4,7 +4,9 @@ pipeline {
       image 'node:10-alpine'
       args '-p 4000:4000'
     }
-
+  }
+  options {
+    copyArtifactPermission('info-system-backend')
   }
   stages {
     stage('Install') {
