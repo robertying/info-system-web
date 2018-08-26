@@ -14,12 +14,13 @@ pipeline {
     }
     stage('Build') {
       steps {
-        sh 'npm run build'
+        sh '''npm run build
+tar czf build.tar.gz build'''
       }
     }
     stage('Archive') {
       steps {
-        archiveArtifacts(artifacts: 'build/**/*.*', onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: 'build.tar.gz', onlyIfSuccessful: true)
       }
     }
   }
