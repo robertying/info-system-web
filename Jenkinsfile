@@ -20,7 +20,7 @@ tar czf build.tar.gz build'''
     }
     stage('Archive') {
       steps {
-        archiveArtifacts(artifacts: 'build.tar.gz', onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: 'build.tar.gz', onlyIfSuccessful: true, fingerprint: true)
       }
     }
   }
