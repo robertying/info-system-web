@@ -19,7 +19,7 @@ pipeline {
     }
     stage('Archive') {
       steps {
-        archiveArtifacts(artifacts: 'build', onlyIfSuccessful: true)
+        archiveArtifacts(artifacts: 'build/**/*.*', onlyIfSuccessful: true)
       }
     }
   }
