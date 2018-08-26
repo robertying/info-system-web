@@ -5,9 +5,6 @@ pipeline {
       args '-p 4000:4000'
     }
   }
-  options {
-    copyArtifactPermission('info-system-backend')
-  }
   stages {
     stage('Install') {
       steps {
