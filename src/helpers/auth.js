@@ -79,7 +79,7 @@ const login = (id, password) => {
       setToken(res.token);
       setRole(res.role);
       setName(res.name);
-      setId(id);
+      setId(res.id);
       return Promise.resolve(res);
     });
 };
