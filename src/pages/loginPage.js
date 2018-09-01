@@ -111,11 +111,12 @@ class LoginPage extends React.Component {
               <TextField
                 id="username"
                 label="用户名"
-                placeholder="学号 / 工作证号"
+                placeholder="学号 / 邮箱"
                 className={classes.textField}
                 value={this.state.id}
                 onChange={this.handleChange("id")}
                 margin="normal"
+                spellcheck="false"
               />
             </div>
             <div>
