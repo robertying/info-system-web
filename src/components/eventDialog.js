@@ -94,9 +94,9 @@ class EventDialog extends React.Component {
       steps: this.state.stepContents.map((n, index) => {
         return `${n}\n起 ${format(
           this.state.selectedBeginDate[index],
-          "YYYY-MM-DD HH:mm",
+          "YYYY-MM-dd HH:mm",
           { locale: CNLocale }
-        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
+        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-dd HH:mm", {
           locale: CNLocale
         })}`;
       }),
