@@ -5,19 +5,19 @@
   "author": "Robert Ying <yingrui205@gmail.com>",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^1.5.1",
-    "@material-ui/icons": "^2.0.3",
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
     "date-fns": "^2.0.0-alpha.16",
     "file-saver": "latest",
     "jwt-decode": "latest",
-    "material-ui-pickers": "^1.0.0-rc.14",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "material-ui-pickers": "latest",
+    "react": "latest",
+    "react-dom": "latest",
     "react-infinite-scroller": "latest",
     "react-router-dom": "latest",
-    "react-scripts": "^1.1.5",
-    "source-map-explorer": "^1.6.0",
-    "xlsx": "^0.13.5"
+    "react-scripts": "latest",
+    "source-map-explorer": "latest",
+    "xlsx": "latest"
   },
   "scripts": {
     "analyze": "source-map-explorer build/static/js/main.*",
@@ -30,7 +30,7 @@
     "extends": "react-app"
   },
   "devDependencies": {
-    "prettier": "^1.14.2"
+    "prettier": "latest"
   },
   "proxy": "http://localhost:3001/api"
 }
