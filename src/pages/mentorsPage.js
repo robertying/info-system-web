@@ -360,9 +360,12 @@ class MentorsPage extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { mentors, rowsPerPage, page } = this.state;
-    const emptyRows =
+    const { mentors, applications, rowsPerPage, page } = this.state;
+    const emptyRowsForMentors =
       rowsPerPage - Math.min(rowsPerPage, mentors.length - page * rowsPerPage);
+    const emptyRowsForApplications =
+      rowsPerPage -
+      Math.min(rowsPerPage, applications.length - page * rowsPerPage);
 
     const NewEventDialog = () => {
       return (
@@ -607,8 +610,8 @@ class MentorsPage extends React.Component {
                             </TableRow>
                           );
                         })}
-                      {emptyRows > 0 && (
-                        <TableRow style={{ height: 48 * emptyRows }}>
+                      {emptyRowsForMentors > 0 && (
+                        <TableRow style={{ height: 48 * emptyRowsForMentors }}>
                           <TableCell colSpan={6} />
                         </TableRow>
                       )}
@@ -745,8 +748,10 @@ class MentorsPage extends React.Component {
                               </TableRow>
                             );
                           })}
-                        {emptyRows > 0 && (
-                          <TableRow style={{ height: 48 * emptyRows }}>
+                        {emptyRowsForApplications > 0 && (
+                          <TableRow
+                            style={{ height: 48 * emptyRowsForApplications }}
+                          >
                             <TableCell colSpan={6} />
                           </TableRow>
                         )}
