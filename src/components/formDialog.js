@@ -41,41 +41,37 @@ const styles = theme => ({
   }
 });
 
-const form = () => {
-  if (this.props.type === "mentor") {
-    return {
-      type: "新生导师",
-      dialogTitle: "新生导师申请",
-      dialogContentText:
-        "请在正式提出申请前，通过邮件与所选择的导师充分沟通，以避免落选。请勿直接在网页上编辑附言，以免会话超时导致提交失败。",
-      dialogContent: [
-        {
-          label: "附言",
-          id: "statement",
-          required: false,
-          autoFocus: true,
-          multiline: true,
-          rows: "9"
-        }
-      ],
-      dialogAction: [
-        { id: "cancel", buttonContent: "取消" },
-        { id: "submit", buttonContent: "提交" }
-      ],
-      hasAttachments: false,
-      url: "/applications",
-      postBody: {
-        applicantId: 0,
-        applicantName: "",
-        year: 0,
-        mentor: {
-          status: {},
-          contents: {}
-        }
-      },
-      submittedText: "申请已提交"
-    };
-  }
+const form = {
+  type: "新生导师",
+  dialogTitle: "新生导师申请",
+  dialogContentText:
+    "请在正式提出申请前，通过邮件与所选择的导师充分沟通，以避免落选。请勿直接在网页上编辑附言，以免会话超时导致提交失败。",
+  dialogContent: [
+    {
+      label: "附言",
+      id: "statement",
+      required: false,
+      autoFocus: true,
+      multiline: true,
+      rows: "9"
+    }
+  ],
+  dialogAction: [
+    { id: "cancel", buttonContent: "取消" },
+    { id: "submit", buttonContent: "提交" }
+  ],
+  hasAttachments: false,
+  url: "/applications",
+  postBody: {
+    applicantId: 0,
+    applicantName: "",
+    year: 0,
+    mentor: {
+      status: {},
+      contents: {}
+    }
+  },
+  submittedText: "申请已提交"
 };
 
 class FormDialog extends React.Component {

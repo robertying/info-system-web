@@ -54,44 +54,6 @@ const styles = theme => ({
   }
 });
 
-/**
- * 事件种类
- */
-const body = () => {
-  if (this.props.type === "mentor") {
-    return {
-      type: "mentor",
-      title: "新生导师申请",
-      steps: this.state.stepContents.map((n, index) => {
-        return `${n}\n起 ${format(
-          this.state.selectedBeginDate[index],
-          "YYYY-MM-DD HH:mm",
-          { locale: CNLocale }
-        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
-          locale: CNLocale
-        })}`;
-      }),
-      activeStep: 0
-    };
-  }
-  if (this.props.type === "honor") {
-    return {
-      type: "honor",
-      title: "荣誉申请",
-      steps: this.state.stepContents.map((n, index) => {
-        return `${n}\n起 ${format(
-          this.state.selectedBeginDate[index],
-          "YYYY-MM-DD HH:mm",
-          { locale: CNLocale }
-        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
-          locale: CNLocale
-        })}`;
-      }),
-      activeStep: 0
-    };
-  }
-};
-
 class EventDialog extends React.Component {
   state = {
     open: false,
@@ -129,6 +91,50 @@ class EventDialog extends React.Component {
       this.props.handleSnackbarPopup("请完整填写事件内容");
       return;
     }
+
+    /**
+     * 事件种类
+     */
+    const body =
+      this.props.type === "mentor"
+        ? {
+            type: "mentor",
+            title: "新生导师申请",
+            steps: this.state.stepContents.map((n, index) => {
+              return `${n}\n起 ${format(
+                this.state.selectedBeginDate[index],
+                "YYYY-MM-DD HH:mm",
+                { locale: CNLocale }
+              )}\n止 ${format(
+                this.state.selectedEndDate[index],
+                "YYYY-MM-DD HH:mm",
+                {
+                  locale: CNLocale
+                }
+              )}`;
+            }),
+            activeStep: 0
+          }
+        : this.props.type === "honor"
+          ? {
+              type: "honor",
+              title: "荣誉申请",
+              steps: this.state.stepContents.map((n, index) => {
+                return `${n}\n起 ${format(
+                  this.state.selectedBeginDate[index],
+                  "YYYY-MM-DD HH:mm",
+                  { locale: CNLocale }
+                )}\n止 ${format(
+                  this.state.selectedEndDate[index],
+                  "YYYY-MM-DD HH:mm",
+                  {
+                    locale: CNLocale
+                  }
+                )}`;
+              }),
+              activeStep: 0
+            }
+          : null;
 
     return fetch("/events", {
       method: "POST",

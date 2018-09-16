@@ -380,6 +380,7 @@ class MentorsPage extends React.Component {
         <EventDialog
           handleDialogClose={this.handleNewEventDialogClose}
           handleSnackbarPopup={this.handleSnackbarPopup}
+          type="mentor"
         />
       );
     };
@@ -609,7 +610,7 @@ class MentorsPage extends React.Component {
                                         : true
                                   }
                                   buttonContent="申请"
-                                  formType="mentor"
+                                  type="mentor"
                                   userfulData={n}
                                   handleDialogClose={e =>
                                     this.handleDialogClose(n.name, e)
