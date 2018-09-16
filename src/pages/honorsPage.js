@@ -13,25 +13,25 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import TableHead from "@material-ui/core/TableHead";
 import Paper from "@material-ui/core/Paper";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
 import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
+import Input from "@material-ui/core/Input";
+import Button from "@material-ui/core/Button";
 import withAuth from "../components/withAuthHOC";
 import TablePaginationActionsWrapped from "../components/tablePaginationActionsWrapped";
-import { Input, Button } from "../../node_modules/@material-ui/core";
-import auth from "../helpers/auth";
-import FormDialog from "../components/formDialog";
 import EventProgressSteper from "../components/progressStepper";
 import EventDialog from "../components/eventDialog";
 import DeleteIcon from "@material-ui/icons/Delete";
+import AttachmentIcon from "@material-ui/icons/Attachment";
 import AlertDialog from "../components/alertDialog";
-import ExpansionPanel from "@material-ui/core/ExpansionPanel";
-import ExpansionPanelSummary from "@material-ui/core/ExpansionPanelSummary";
-import ExpansionPanelDetails from "@material-ui/core/ExpansionPanelDetails";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MaterialDialog from "../components/materialDialog";
 import XlsxGenerator from "../components/xlsxGenerator";
-import year from "../config/year";
-import { isNullOrUndefined } from "util";
+import { trimFilename, download } from "../helpers/file";
+import auth from "../helpers/auth";
 
 const fetch = auth.authedFetch;
 
@@ -57,7 +57,9 @@ const styles = theme => ({
   },
   tables: {},
   button: {
-    margin: theme.spacing.unit
+    margin: theme.spacing.unit * 3,
+    marginLeft: 10,
+    marginBottom: 10
   },
   paper: {
     marginTop: 26,
@@ -72,7 +74,8 @@ const styles = theme => ({
     marginLeft: 20
   },
   searchBar: {
-    width: 100
+    width: 75,
+    fontSize: 12
   },
   text: {
     margin: theme.spacing.unit * 2
@@ -82,33 +85,46 @@ const styles = theme => ({
   },
   deleteButton: {},
   linebreak: {
-    whiteSpace: "pre-wrap"
+    whiteSpace: "pre-wrap",
+    marginTop: 20
+  },
+  margin: {
+    marginLeft: 8
+  },
+  chip: {
+    margin: theme.spacing.unit / 2,
+    marginLeft: 0
+  },
+  chips: {
+    display: "flex",
+    justifyContent: "left",
+    flexWrap: "wrap",
+    padding: theme.spacing.unit / 2
   }
 });
 
 class HonorsPage extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      honors: [],
-      page: 0,
-      rowsPerPage: 5,
-      applicantName: "",
-      applicantId: "",
-      class: "",
-      totalHonors: "",
-      comprehensiveHonor: "-",
-      status: {},
-      event: {
-        activeStep: 2
-      },
-      deleteDialogOpen: false,
-      applications: [],
-      confirmDialogOpen: false,
-      willConfirmApplicationIndex: 0
-    };
-  }
+  state = {
+    applicationId: "",
+    honors: [],
+    page: 0,
+    rowsPerPage: 5,
+    applicantName: "",
+    applicantId: "",
+    class: "",
+    totalHonors: "",
+    comprehensiveHonor: "-",
+    status: {},
+    contents: {},
+    attachments: [],
+    event: {
+      activeStep: 2
+    },
+    deleteDialogOpen: false,
+    applications: [],
+    confirmDialogOpen: false,
+    willConfirmHonorIndex: 0
+  };
 
   componentDidMount = () => {
     fetch("/events?type=honor", {
@@ -123,17 +139,19 @@ class HonorsPage extends React.Component {
         this.setState({ event: res.pop() || {} });
       });
 
-    fetch("/honors", {
-      method: "GET"
-    })
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        }
+    if (auth.getRole() === "student") {
+      fetch("/honors", {
+        method: "GET"
       })
-      .then(res => {
-        this.setState({ honors: res });
-      });
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
+        })
+        .then(res => {
+          this.setState({ honors: res });
+        });
+    }
 
     if (auth.getRole() === "student") {
       fetch(`/applications?applicantId=${auth.getId()}&applicationType=honor`, {
@@ -146,41 +164,36 @@ class HonorsPage extends React.Component {
         })
         .then(res => {
           if (res.length !== 0) {
-            this.setState({ status: res[0].honor.status });
+            this.setState({ status: res[0].honor.status || {} });
+            this.setState({ contents: res[0].honor.contents || {} });
+            this.setState({ attachments: res[0].honor.attachments || [] });
+            this.setState({ applicationId: res[0].id });
           }
         });
     }
 
     if (auth.getRole() === "reviewer") {
-      fetch("/applications", {
-        method: "GET"
-      })
+      fetch(
+        auth.getGrade()
+          ? `/applications?applicantGrade=${auth.getGrade()}`
+          : "/applications",
+        {
+          method: "GET"
+        }
+      )
         .then(res => {
           if (res.ok) {
             return res.json();
           }
         })
-        .then(async res => {
-          let applications = res;
-          await Promise.all(
-            applications.map(async (application, index) => {
-              await fetch(`/users/students/${application.applicantId}`, {
-                method: "GET"
-              })
-                .then(res => {
-                  if (res.ok) {
-                    return res.json();
-                  }
-                })
-                .then(res => {
-                  applications[index].class = res.class;
-                });
-            })
-          );
-          console.log(applications);
-          this.setState({ applications });
+        .then(res => {
+          this.setState({ applications: res });
         });
     }
+  };
+
+  handleChipClick = (e, filename) => {
+    download(false, filename);
   };
 
   handleNewEventDialogClose = body => {
@@ -230,6 +243,13 @@ class HonorsPage extends React.Component {
     this.setState({ status });
   };
 
+  handleMaterialDialogClose = material => {
+    this.setState({ contents: material.honor.contents });
+    this.setState({ attachments: material.honor.attachments });
+  };
+
+  handleReadOnlyMaterialDialogClose = () => {};
+
   handleDeleteDialogClose = choice => {
     if (choice === "no") {
       this.setState({ deleteDialogOpen: false });
@@ -253,7 +273,7 @@ class HonorsPage extends React.Component {
   };
 
   handleConfirmDialogOpen = index => {
-    this.setState({ willConfirmApplicationIndex: index });
+    this.setState({ willConfirmHonorIndex: index });
     this.setState({ confirmDialogOpen: true });
   };
 
@@ -261,26 +281,25 @@ class HonorsPage extends React.Component {
     if (choice === "no") {
       this.setState({ confirmDialogOpen: false });
     } else if (choice === "yes") {
-      const id = this.state.applicationsForTeacher[
-        this.state.willConfirmApplicationIndex
-      ].id;
-      let body = this.state.applicationsForTeacher[
-        this.state.willConfirmApplicationIndex
-      ];
-      delete body.id;
-      body.mentor.status[Object.keys(body.mentor.status)[0]] = "已通过";
-      fetch("/applications/" + id, {
+      const title = this.state.honors[this.state.willConfirmHonorIndex].title;
+      fetch("/applications/" + this.state.applicationId, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          honor: {
+            status: {
+              [title]: "申请中"
+            }
+          }
+        })
       }).then(res => {
         if (res.status === 204) {
-          body.id = id;
-          let applicationsForTeacher = this.state.applicationsForTeacher;
-          applicationsForTeacher[this.state.willConfirmApplicationIndex] = body;
-          this.setState({ applicationsForTeacher });
+          let status = this.state.status;
+          status[this.state.honors[this.state.willConfirmHonorIndex].title] =
+            "申请中";
+          this.setState({ status });
           this.setState({ confirmDialogOpen: false });
           this.props.handleSnackbarPopup("申请状态已更新");
         } else {
@@ -292,7 +311,7 @@ class HonorsPage extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { honors, applications, rowsPerPage, page } = this.state;
+    const { honors, status, applications, rowsPerPage, page } = this.state;
     const emptyRowsForApplications =
       rowsPerPage -
       Math.min(rowsPerPage, applications.length - page * rowsPerPage);
@@ -302,6 +321,7 @@ class HonorsPage extends React.Component {
         <EventDialog
           handleDialogClose={this.handleNewEventDialogClose}
           handleSnackbarPopup={this.handleSnackbarPopup}
+          type="honor"
         />
       );
     };
@@ -349,6 +369,18 @@ class HonorsPage extends React.Component {
                 open={this.state.deleteDialogOpen}
                 handleClose={this.handleDeleteDialogClose}
               />
+              <AlertDialog
+                hasCancel
+                title={
+                  this.state.honors[this.state.willConfirmHonorIndex] ===
+                  undefined
+                    ? ""
+                    : this.state.honors[this.state.willConfirmHonorIndex].title
+                }
+                content="是否要申请该荣誉？"
+                open={this.state.confirmDialogOpen}
+                handleClose={this.handleConfirmDialogClose}
+              />
             </div>
           </div>
           <div className={classes.tables}>
@@ -357,55 +389,114 @@ class HonorsPage extends React.Component {
               activeStep={this.state.event.activeStep}
               handleEventUpdate={this.handleEventUpdate}
             />
-            <Paper className={classes.paper}>
-              <div className={classes.tableWrapper}>
-                <Table className={classes.table}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>荣誉</TableCell>
-                      <TableCell>申请状态</TableCell>
-                      <TableCell>操作</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {honors.map(n => {
-                      return (
-                        <TableRow key={n.id}>
-                          <TableCell>{n.title}</TableCell>
-                          <TableCell>
-                            {applications[n.title] == null
-                              ? "未申请"
-                              : applications[n.title]}
-                          </TableCell>
-                          <TableCell>
-                            <FormDialog
-                              buttonDisabled={
-                                auth.getRole() === "reviewer" ||
-                                auth.getRole() === "teacher" ||
-                                (auth.getRole() === "student" &&
-                                  auth.getClass()[1] === "8")
-                                  ? true
-                                  : this.state.event.activeStep === 0 &&
-                                    applications[n.title] == null
-                                    ? false
-                                    : true
-                              }
-                              buttonContent="申请"
-                              formType="mentor"
-                              userfulData={n}
-                              handleDialogClose={e =>
-                                this.handleDialogClose(n.name, e)
-                              }
-                              handleSnackbarPopup={this.handleSnackbarPopup}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
-            </Paper>
+            {auth.getRole() !== "student" ? null : (
+              <Paper className={classes.paper}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="headline" component="h2">
+                      申请材料
+                    </Typography>
+                    <Typography component="p" className={classes.linebreak}>
+                      {this.state.contents
+                        ? this.state.contents.reason
+                          ? "申请理由：\n" + this.state.contents.reason
+                          : "请填写申请理由"
+                        : "请填写申请理由"}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <div>
+                      <div className={classes.flex}>
+                        {this.state.attachments.length !== 0 ? (
+                          <AttachmentIcon />
+                        ) : (
+                          <Typography component="p" className={classes.margin}>
+                            无附件
+                          </Typography>
+                        )}
+                        <div className={classes.chips}>
+                          {this.state.attachments.map((attachment, index) => {
+                            return (
+                              <Chip
+                                key={index}
+                                label={trimFilename(attachment)}
+                                onClick={e =>
+                                  this.handleChipClick(e, attachment)
+                                }
+                                className={classes.chip}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <MaterialDialog
+                        id={this.state.applicationId}
+                        buttonDisabled={
+                          this.state.contents
+                            ? this.state.contents.reason
+                              ? true
+                              : false
+                            : false
+                        }
+                        readOnly={false}
+                        handleDialogClose={this.handleMaterialDialogClose}
+                        handleSnackbarPopup={this.handleSnackbarPopup}
+                      />
+                    </div>
+                  </CardActions>
+                </Card>
+              </Paper>
+            )}
+            {auth.getRole() !== "student" ? null : (
+              <Paper className={classes.paper}>
+                <div className={classes.tableWrapper}>
+                  <Table className={classes.table}>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>荣誉</TableCell>
+                        <TableCell>申请状态</TableCell>
+                        <TableCell>操作</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {honors.map((n, index) => {
+                        return (
+                          <TableRow key={index}>
+                            <TableCell>{n.title}</TableCell>
+                            <TableCell>
+                              {status[n.title] == null
+                                ? "未申请"
+                                : status[n.title]}
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                color="primary"
+                                onClick={() =>
+                                  this.handleConfirmDialogOpen(index)
+                                }
+                                disabled={
+                                  auth.getRole() === "reviewer" ||
+                                  auth.getRole() === "teacher" ||
+                                  (auth.getRole() === "student" &&
+                                    auth.getClass()[1] === "8")
+                                    ? true
+                                    : this.state.event.activeStep === 0 &&
+                                      status[n.title] == null
+                                      ? false
+                                      : true
+                                }
+                              >
+                                申请
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Paper>
+            )}
             {auth.getRole() === "reviewer" ? (
               <div>
                 <WithAuthXlsxGenerator />
@@ -418,8 +509,9 @@ class HonorsPage extends React.Component {
                           <TableCell>班级</TableCell>
                           <TableCell>学号</TableCell>
                           <TableCell>荣誉数</TableCell>
-                          <TableCell>状态</TableCell>
+                          <TableCell>申请状态</TableCell>
                           <TableCell>综合优秀奖</TableCell>
+                          <TableCell>申请材料</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -461,16 +553,16 @@ class HonorsPage extends React.Component {
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
-                              placeholder="按综合优秀奖查找"
+                              placeholder="按综奖查找"
                               onChange={this.handleInputChange(
                                 "comprehensiveHonor"
                               )}
                             />
                           </TableCell>
+                          <TableCell />
                         </TableRow>
                         {this.state.applications
                           .filter(n => {
-                            console.log(n);
                             return (
                               n.applicantName
                                 .toLowerCase()
@@ -497,7 +589,6 @@ class HonorsPage extends React.Component {
                             page * rowsPerPage + rowsPerPage
                           )
                           .map(n => {
-                            console.log(n);
                             return (
                               <TableRow key={n.id}>
                                 <TableCell>{n.applicantName}</TableCell>
@@ -518,7 +609,7 @@ class HonorsPage extends React.Component {
                                             color={
                                               n.honor.status[key] === "已通过"
                                                 ? "primary"
-                                                : ""
+                                                : "default"
                                             }
                                           />
                                         );
@@ -530,6 +621,19 @@ class HonorsPage extends React.Component {
                                   {n.honor.status["综合优秀奖"] != null
                                     ? "是"
                                     : "否"}
+                                </TableCell>
+                                <TableCell>
+                                  <MaterialDialog
+                                    id={n.id}
+                                    buttonDisabled={false}
+                                    readOnly={true}
+                                    handleDialogClose={
+                                      this.handleReadOnlyMaterialDialogClose
+                                    }
+                                    handleSnackbarPopup={
+                                      this.handleSnackbarPopup
+                                    }
+                                  />
                                 </TableCell>
                               </TableRow>
                             );
