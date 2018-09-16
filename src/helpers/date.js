@@ -1,3 +1,7 @@
+/**
+ * 格式化日期小工具
+ * @param {Date} date
+ */
 const formatDate = date => {
   const d = new Date(date),
     month = "" + (d.getMonth() + 1),

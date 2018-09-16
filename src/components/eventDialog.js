@@ -1,3 +1,7 @@
+/**
+ * 创建事件对话框
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
@@ -50,6 +54,44 @@ const styles = theme => ({
   }
 });
 
+/**
+ * 事件种类
+ */
+const body = () => {
+  if (this.props.type === "mentor") {
+    return {
+      type: "mentor",
+      title: "新生导师申请",
+      steps: this.state.stepContents.map((n, index) => {
+        return `${n}\n起 ${format(
+          this.state.selectedBeginDate[index],
+          "YYYY-MM-DD HH:mm",
+          { locale: CNLocale }
+        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
+          locale: CNLocale
+        })}`;
+      }),
+      activeStep: 0
+    };
+  }
+  if (this.props.type === "honor") {
+    return {
+      type: "honor",
+      title: "荣誉申请",
+      steps: this.state.stepContents.map((n, index) => {
+        return `${n}\n起 ${format(
+          this.state.selectedBeginDate[index],
+          "YYYY-MM-DD HH:mm",
+          { locale: CNLocale }
+        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
+          locale: CNLocale
+        })}`;
+      }),
+      activeStep: 0
+    };
+  }
+};
+
 class EventDialog extends React.Component {
   state = {
     open: false,
@@ -88,20 +130,6 @@ class EventDialog extends React.Component {
       return;
     }
 
-    const body = {
-      type: "mentor",
-      title: "新生导师申请",
-      steps: this.state.stepContents.map((n, index) => {
-        return `${n}\n起 ${format(
-          this.state.selectedBeginDate[index],
-          "YYYY-MM-DD HH:mm",
-          { locale: CNLocale }
-        )}\n止 ${format(this.state.selectedEndDate[index], "YYYY-MM-DD HH:mm", {
-          locale: CNLocale
-        })}`;
-      }),
-      activeStep: 0
-    };
     return fetch("/events", {
       method: "POST",
       headers: {
@@ -244,7 +272,8 @@ class EventDialog extends React.Component {
 }
 
 EventDialog.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  type: PropTypes.string.isRequired
 };
 
 export default withMobileDialog()(withStyles(styles)(EventDialog));

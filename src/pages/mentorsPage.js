@@ -1,3 +1,7 @@
+/**
+ * 新生导师页面
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
@@ -28,6 +32,10 @@ import XlsxGenerator from "../components/xlsxGenerator";
 import year from "../config/year";
 
 const fetch = auth.authedFetch;
+
+const XlsxGeneratorForMentors = () => {
+  return <XlsxGenerator type="mentor" />;
+};
 
 const styles = theme => ({
   root: {
@@ -415,7 +423,7 @@ class MentorsPage extends React.Component {
 
     const WithAuthTerminateButton = withAuth(TerminateButton, ["teacher"]);
 
-    const WithAuthXlsxGenerator = withAuth(XlsxGenerator, [
+    const WithAuthXlsxGenerator = withAuth(XlsxGeneratorForMentors, [
       "reviewer",
       "admin"
     ]);
@@ -590,7 +598,9 @@ class MentorsPage extends React.Component {
                               <TableCell>
                                 <FormDialog
                                   buttonDisabled={
-                                    auth.getRole() === "reviewer"
+                                    auth.getRole() === "reviewer" ||
+                                    (auth.getRole() === "student" &&
+                                      auth.getClass()[1] !== "8")
                                       ? true
                                       : this.state.event.activeStep === 0 &&
                                         Object.values(this.state.status)[0] ===

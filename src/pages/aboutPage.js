@@ -1,10 +1,17 @@
+/**
+ * 关于页面
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
+import Avatar from "@material-ui/core/Avatar";
 import { withStyles } from "@material-ui/core/styles";
 import withAuth from "../components/withAuthHOC";
+import { version } from "../../package.json";
+import github from "../assets/github.ico";
 
 const styles = theme => ({
   root: {
@@ -43,6 +50,49 @@ class AboutPage extends React.Component {
             关于
           </Typography>
 
+          <Paper className={classes.paper}>
+            <Typography className={classes.title} variant="title">
+              版本
+            </Typography>
+            <Chip
+              avatar={<Avatar src={github} />}
+              label={version}
+              className={classes.chip}
+              clickable
+              component="a"
+              target="_blank"
+              href="https://github.com/robertying"
+            />
+          </Paper>
+          <Paper className={classes.paper}>
+            <Typography className={classes.title} variant="title">
+              技术栈
+            </Typography>
+            <Chip
+              label="react.js"
+              className={classes.chip}
+              clickable
+              component="a"
+              target="_blank"
+              href="https://reactjs.org/"
+            />
+            <Chip
+              label="material-ui"
+              className={classes.chip}
+              clickable
+              component="a"
+              target="_blank"
+              href="https://material-ui.com/"
+            />
+            <Chip
+              label="express.js"
+              className={classes.chip}
+              clickable
+              component="a"
+              target="_blank"
+              href="https://expressjs.com/"
+            />
+          </Paper>
           <Paper className={classes.paper}>
             <Typography className={classes.title} variant="title">
               顾问
@@ -86,6 +136,18 @@ class AboutPage extends React.Component {
           </Paper>
           <Paper className={classes.paper}>
             <Typography className={classes.title} variant="title">
+              当前开发者
+            </Typography>
+            <Chip
+              label="应睿・清华大学电子工程系2016级本科生"
+              className={classes.chip}
+              clickable
+              component="a"
+              href="mailto:yingrui205@qq.com"
+            />
+          </Paper>
+          <Paper className={classes.paper}>
+            <Typography className={classes.title} variant="title">
               历史开发者
             </Typography>
             <Chip
@@ -115,47 +177,6 @@ class AboutPage extends React.Component {
               clickable
               component="a"
               href="mailto:975114697@qq.com"
-            />
-          </Paper>
-          <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
-              当前开发者
-            </Typography>
-            <Chip
-              label="应睿・清华大学电子工程系2016级本科生"
-              className={classes.chip}
-              clickable
-              component="a"
-              href="mailto:yingrui205@qq.com"
-            />
-          </Paper>
-          <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
-              技术栈
-            </Typography>
-            <Chip
-              label="react.js"
-              className={classes.chip}
-              clickable
-              component="a"
-              target="_blank"
-              href="https://reactjs.org/"
-            />
-            <Chip
-              label="material-ui"
-              className={classes.chip}
-              clickable
-              component="a"
-              target="_blank"
-              href="https://material-ui.com/"
-            />
-            <Chip
-              label="express.js"
-              className={classes.chip}
-              clickable
-              component="a"
-              target="_blank"
-              href="https://expressjs.com/"
             />
           </Paper>
         </div>

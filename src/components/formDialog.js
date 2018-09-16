@@ -1,3 +1,7 @@
+/**
+ * 表单内容对话框
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
@@ -10,7 +14,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import Chip from "@material-ui/core/Chip";
 import withMobileDialog from "@material-ui/core/withMobileDialog";
 import { withStyles } from "@material-ui/core/styles";
-import forms from "../config/forms";
 import { upload } from "../helpers/file";
 import auth from "../helpers/auth";
 import year from "../config/year";
@@ -38,21 +41,52 @@ const styles = theme => ({
   }
 });
 
-class FormDialog extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const form = forms[this.props.formType];
-    //const form = forms["academicPerformance"];
-    this.state = {
-      open: false,
-      buttonDisabled: this.props.buttonDisabled,
-      buttonContent: this.props.buttonContent,
-      files: [],
-      form: form,
-      confirmDialogOpen: false
+const form = () => {
+  if (this.props.type === "mentor") {
+    return {
+      type: "新生导师",
+      dialogTitle: "新生导师申请",
+      dialogContentText:
+        "请在正式提出申请前，通过邮件与所选择的导师充分沟通，以避免落选。请勿直接在网页上编辑附言，以免会话超时导致提交失败。",
+      dialogContent: [
+        {
+          label: "附言",
+          id: "statement",
+          required: false,
+          autoFocus: true,
+          multiline: true,
+          rows: "9"
+        }
+      ],
+      dialogAction: [
+        { id: "cancel", buttonContent: "取消" },
+        { id: "submit", buttonContent: "提交" }
+      ],
+      hasAttachments: false,
+      url: "/applications",
+      postBody: {
+        applicantId: 0,
+        applicantName: "",
+        year: 0,
+        mentor: {
+          status: {},
+          contents: {}
+        }
+      },
+      submittedText: "申请已提交"
     };
   }
+};
+
+class FormDialog extends React.Component {
+  state = {
+    open: false,
+    buttonDisabled: this.props.buttonDisabled,
+    buttonContent: this.props.buttonContent,
+    files: [],
+    form: form,
+    confirmDialogOpen: false
+  };
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -112,14 +146,12 @@ class FormDialog extends React.Component {
       body.applicantId = auth.getId();
       body.applicantName = auth.getName();
       body.year = year;
-      body[this.props.formType] = {
+      body[this.props.type] = {
         status: { [this.props.userfulData.name]: "申请中" },
         contents: { statement: this.state["statement"] }
       };
-      // this.state.form.dialogContent.map(n => {
-      //   body.contents[n.id] = this.state[n.id];
-      // });
 
+      // 没有附件
       if (this.state.files.length === 0) {
         return fetch(this.state.form.url, {
           method: "POST",
@@ -131,7 +163,6 @@ class FormDialog extends React.Component {
           if (res.ok) {
             this.setState({ confirmDialogOpen: false });
             this.props.handleDialogClose();
-            //this.setState({ buttonDisabled: true });
             this.handleClose();
             this.props.handleSnackbarPopup(this.state.form.submittedText);
           } else {
@@ -139,6 +170,7 @@ class FormDialog extends React.Component {
           }
         });
       } else {
+        // 有附件
         let attachments = [];
         Promise.all(
           this.state.files.map(file => {
@@ -169,6 +201,7 @@ class FormDialog extends React.Component {
     }
   };
 
+  // parent 的 state 经 props 控制此 child 的 state
   static getDerivedStateFromProps(nextProps, prevState) {
     return { buttonDisabled: nextProps.buttonDisabled };
   }
@@ -221,7 +254,7 @@ class FormDialog extends React.Component {
         <AlertDialog
           hasCancel
           title="提交申请"
-          content="是否要提交此申请？（提交申请前请务必与导师进行充分沟通，确定提交后对应导师将收到申请的通知邮件）"
+          content="是否要提交此申请？"
           open={this.state.confirmDialogOpen}
           handleClose={this.handleConfirmDialogClose}
         />
@@ -279,7 +312,8 @@ class FormDialog extends React.Component {
 }
 
 FormDialog.propTypes = {
-  classes: PropTypes.object.isRequired
+  classes: PropTypes.object.isRequired,
+  type: PropTypes.string.isRequired
 };
 
 export default withMobileDialog()(withStyles(styles)(FormDialog));

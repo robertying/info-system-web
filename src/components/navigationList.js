@@ -1,3 +1,7 @@
+/**
+ * 导航栏
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
@@ -8,9 +12,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import Divider from "@material-ui/core/Divider";
-// import StarsIcon from "@material-ui/icons/Stars";
-// import LibraryIcon from "@material-ui/icons/LocalLibrary";
-// import MoneyIcon from "@material-ui/icons/EuroSymbol";
+import StarsIcon from "@material-ui/icons/Stars";
+import LibraryIcon from "@material-ui/icons/LocalLibrary";
+import MoneyIcon from "@material-ui/icons/EuroSymbol";
 import EventIcon from "@material-ui/icons/EventNote";
 import FaceIcon from "@material-ui/icons/Face";
 import Logo from "../assets/logo.png";
@@ -34,7 +38,8 @@ const styles = theme => ({
   },
   logoImage: {
     width: "30%",
-    margin: 60
+    margin: 60,
+    marginTop: 30
   }
 });
 
@@ -64,7 +69,7 @@ class NavigationList extends React.Component {
               <ListItemText primary="新生导师" />
             </ListItem>
           </List>
-          {/* <Divider />
+          <Divider />
           <List component="nav">
             <ListSubheader>奖助学金</ListSubheader>
             <ListItem button component={Link} to="/honors" replace>
@@ -85,7 +90,7 @@ class NavigationList extends React.Component {
               </ListItemIcon>
               <ListItemText primary="助学金" />
             </ListItem>
-          </List> */}
+          </List>
         </div>
         <div className={classes.flex}>
           <img className={classes.logoImage} src={Logo} alt="logo" />

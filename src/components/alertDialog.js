@@ -47,7 +47,8 @@ class AlertDialog extends React.Component {
             <DialogContentText>{this.props.content}</DialogContentText>
           </DialogContent>
           <DialogActions>
-            {this.props.hasCancel ? (
+            {// two choices or one
+            this.props.hasCancel ? (
               <div>
                 <Button onClick={() => this.handleClose("yes")} color="primary">
                   确定

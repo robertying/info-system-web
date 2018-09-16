@@ -1,8 +1,15 @@
+/**
+ * 文件下载及上传
+ */
+
 import FileSaver from "file-saver";
 import auth from "./auth";
 
 const fetch = auth.authedFetch;
 
+/**
+ * 移除文件名中自动添加的数字
+ */
 const trimFilename = filename => {
   const end = filename.lastIndexOf(".");
   const start = filename.lastIndexOf("-");

@@ -1,3 +1,7 @@
+/**
+ * 用于包裹组件使其具有特定用户组可见功能
+ */
+
 import React, { Component } from "react";
 import auth from "../helpers/auth";
 

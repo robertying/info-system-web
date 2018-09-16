@@ -1,3 +1,7 @@
+/**
+ * 通知页面
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroller";

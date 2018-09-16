@@ -1,3 +1,7 @@
+/**
+ * 个人信息页面
+ */
+
 import React from "react";
 import FileSaver from "file-saver";
 import Typography from "@material-ui/core/Typography";

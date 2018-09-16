@@ -1,3 +1,7 @@
+/**
+ * 用于包裹 route 使其具有针对特定用户组可见功能
+ */
+
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import auth from "../helpers/auth";

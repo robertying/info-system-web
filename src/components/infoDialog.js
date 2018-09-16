@@ -1,3 +1,7 @@
+/**
+ * 个人信息更新对话框
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "@material-ui/core/Button";
@@ -19,6 +23,7 @@ import { withStyles } from "@material-ui/core/styles";
 import AlertDialog from "../components/alertDialog";
 import auth from "../helpers/auth";
 import year from "../config/year";
+
 const fetch = auth.authedFetch;
 
 const styles = theme => ({
@@ -49,16 +54,13 @@ const styles = theme => ({
 });
 
 class InfoDialog extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    open: this.props.open,
+    confirmDialogOpen: false,
+    showPassword: false
+  };
 
-    this.state = {
-      open: this.props.open,
-      confirmDialogOpen: false,
-      showPassword: false
-    };
-  }
-
+  // 由 parent 控制此 child 的状态
   static getDerivedStateFromProps(nextProps, prevState) {
     return { open: nextProps.open };
   }
@@ -138,7 +140,6 @@ class InfoDialog extends React.Component {
           <DialogContent>
             <DialogContentText>
               请及时更新个人信息，并保证信息填写正确。
-              您只有一次更新个人信息的机会。
             </DialogContentText>
             <div className={classes.flexContainer}>
               <TextField
@@ -192,7 +193,9 @@ class InfoDialog extends React.Component {
                 />
               </FormControl>
               <FormControl className={classes.textField}>
-                <InputLabel htmlFor="new-adornment-password">重复新密码</InputLabel>
+                <InputLabel htmlFor="new-adornment-password">
+                  重复新密码
+                </InputLabel>
                 <Input
                   required
                   spellCheck="false"

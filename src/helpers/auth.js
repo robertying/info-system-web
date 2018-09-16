@@ -1,3 +1,7 @@
+/**
+ * 登录及用户信息管理
+ */
+
 import jwtDecode from "jwt-decode";
 
 const setRole = role => {
@@ -6,6 +10,14 @@ const setRole = role => {
 
 const getRole = () => {
   return localStorage.getItem("role");
+};
+
+const setClass = className => {
+  localStorage.setItem("class", className);
+};
+
+const getClass = () => {
+  return localStorage.getItem("class");
 };
 
 const setId = id => {
@@ -80,6 +92,7 @@ const login = (id, password) => {
       setRole(res.role);
       setName(res.name);
       setId(res.id);
+      setClass(res.class);
       return Promise.resolve(res);
     });
 };
@@ -111,6 +124,8 @@ export default {
   getToken,
   setName,
   getName,
+  setClass,
+  getClass,
   logout,
   isTokenExpired,
   isLoggedIn,

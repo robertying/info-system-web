@@ -1,3 +1,7 @@
+/**
+ * 网站 route 管理
+ */
+
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -7,7 +11,6 @@ import {
 } from "react-router-dom";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import NavigationDrawer from "./components/navigationDrawer";
-import NotFoundPage from "./pages/notFoundPage";
 import LoginPage from "./pages/loginPage";
 import withAuth from "./components/withAuthRoute";
 import Snackbar from "./components/consecutiveSnackbars";
@@ -53,7 +56,6 @@ class App extends React.Component {
                 path="/login"
                 component={this.WithSnackbarLoginPage}
               />
-              <Route exact path="/404" component={NotFoundPage} />
               <this.WithAuthRoute />
               <Redirect exact path="/notices" to="/" />
               <Redirect exact path="/mentors" to="/" />
@@ -62,7 +64,6 @@ class App extends React.Component {
               <Redirect exact path="/scholarships" to="/" />
               <Redirect exact path="/profile" to="/" />
               <Redirect exact path="/about" to="/" />
-              <Redirect to="/404" />
             </Switch>
           </Router>
           <Snackbar onRef={ref => (this.snackbar = ref)} />

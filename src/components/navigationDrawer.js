@@ -1,3 +1,7 @@
+/**
+ * 网页主体框架
+ */
+
 import React from "react";
 import PropTypes from "prop-types";
 import {
@@ -19,8 +23,8 @@ import ProfileMenu from "./profileMenu";
 import NoticesPage from "../pages/noticesPage";
 import MentorsPage from "../pages/mentorsPage";
 import HonorsPage from "../pages/honorsPage";
-// import ScholarshipsPage from "../pages/scholarshipsPage";
-// import FinancialAidPage from "../pages/financialAidPage";
+import ScholarshipsPage from "../pages/scholarshipsPage";
+import FinancialAidPage from "../pages/financialAidPage";
 import ProfilePage from "../pages/profilePage";
 import AboutPage from "../pages/aboutPage";
 import auth from "../helpers/auth";
@@ -84,6 +88,7 @@ class NavigationDrawer extends React.Component {
     this.props.handleSnackbarPopup(message);
   };
 
+  // 给对应页面添加通知功能
   WithSnackbarNoticesPage = props => {
     return (
       <NoticesPage handleSnackbarPopup={this.handleSnackbarPopup} {...props} />
@@ -102,12 +107,31 @@ class NavigationDrawer extends React.Component {
     );
   };
 
+  WithSnackbarScholarshipsPage = props => {
+    return (
+      <ScholarshipsPage
+        handleSnackbarPopup={this.handleSnackbarPopup}
+        {...props}
+      />
+    );
+  };
+
+  WithSnackbarFinancialAidPage = props => {
+    return (
+      <FinancialAidPage
+        handleSnackbarPopup={this.handleSnackbarPopup}
+        {...props}
+      />
+    );
+  };
+
   WithSnackbarProfilePage = props => {
     return (
       <ProfilePage handleSnackbarPopup={this.handleSnackbarPopup} {...props} />
     );
   };
 
+  // 每年强制更新信息
   componentDidMount = () => {
     fetch(`/users/${auth.getRole()}s/${auth.getId()}`, {
       method: "GET"
@@ -199,13 +223,21 @@ class NavigationDrawer extends React.Component {
                 path="/notices"
                 component={this.WithSnackbarNoticesPage}
               />
-              {/* <Route
+              <Route
                 exact
                 path="/honors"
                 component={this.WithSnackbarHonorsPage}
               />
-              <Route exact path="/scholarships" component={ScholarshipsPage} />
-              <Route exact path="/financial-aid" component={FinancialAidPage} /> */}
+              <Route
+                exact
+                path="/scholarships"
+                component={this.WithSnackbarScholarshipsPage}
+              />
+              <Route
+                exact
+                path="/financial-aid"
+                component={this.WithSnackbarFinancialAidPage}
+              />
               <Route
                 exact
                 path="/mentors"
