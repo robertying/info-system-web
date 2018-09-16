@@ -175,8 +175,8 @@ class HonorsPage extends React.Component {
     if (auth.getRole() === "reviewer") {
       fetch(
         auth.getGrade()
-          ? `/applications?applicantGrade=${auth.getGrade()}`
-          : "/applications",
+          ? `/applications?applicantGrade=${auth.getGrade()}&applicationType=honor`
+          : "/applications?applicationType=honor",
         {
           method: "GET"
         }
