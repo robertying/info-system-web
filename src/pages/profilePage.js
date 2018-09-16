@@ -53,19 +53,15 @@ const styles = theme => ({
 
 class ProfilePage extends React.Component {
   state = {
-    profile: {
-      name: "",
-      id: "",
-      class: "",
-      email: "",
-      phone: "",
-      degree: "",
-      department: "",
-      grade: ""
-    },
     dialogOpen: false,
+    name: "",
+    id: "",
+    class: "",
     email: "",
     phone: "",
+    degree: "",
+    department: "",
+    grade: "",
     showPassword: false,
     password: "",
     passwordRepeat: ""
@@ -83,9 +79,16 @@ class ProfilePage extends React.Component {
         }
       })
       .then(res => {
-        this.setState({ profile: res });
-        this.setState({ email: res.email });
-        this.setState({ phone: res.phone });
+        this.setState({
+          name: res.name,
+          id: res.id,
+          class: res.class,
+          email: res.email,
+          phone: res.phone,
+          degree: res.degree,
+          department: res.department,
+          grade: res.degree
+        });
       });
   };
 
@@ -162,32 +165,28 @@ class ProfilePage extends React.Component {
                   disabled
                   className={classes.textField}
                   label="姓名"
-                  value={this.state.profile.name}
-                  InputProps={{ readOnly: true }}
+                  value={this.state.name}
                 />
                 {auth.getRole() === "student" ? (
                   <TextField
                     disabled
                     className={classes.textField}
                     label="学号"
-                    value={this.state.profile.id}
-                    InputProps={{ readOnly: true }}
+                    value={this.state.id}
                   />
                 ) : auth.getRole() === "reviewer" ? (
                   <TextField
                     disabled
                     className={classes.textField}
                     label="管理年级"
-                    value={this.state.profile.grade}
-                    InputProps={{ readOnly: true }}
+                    value={this.state.grade}
                   />
                 ) : (
                   <TextField
                     disabled
                     className={classes.textField}
                     label="院系"
-                    value={this.state.profile.department}
-                    InputProps={{ readOnly: true }}
+                    value={this.state.department}
                   />
                 )}
               </div>
@@ -197,15 +196,13 @@ class ProfilePage extends React.Component {
                     disabled
                     className={classes.textField}
                     label="班级"
-                    value={this.state.profile.class}
-                    InputProps={{ readOnly: true }}
+                    value={this.state.class}
                   />
                   <TextField
                     disabled
                     className={classes.textField}
                     label="类型"
-                    value={this.state.profile.degree}
-                    InputProps={{ readOnly: true }}
+                    value={this.state.degree}
                   />
                 </div>
               ) : null}
