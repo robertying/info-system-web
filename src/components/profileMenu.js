@@ -48,11 +48,9 @@ class ProfileMenu extends React.Component {
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
         >
-          {auth.getRole() === "student" ? (
-            <MenuItem onClick={this.handleClose} component={Link} to="/profile">
-              个人信息
-            </MenuItem>
-          ) : null}
+          <MenuItem onClick={this.handleClose} component={Link} to="/profile">
+            个人信息
+          </MenuItem>
           <MenuItem onClick={this.handleLogout}>退出登录</MenuItem>
           <Divider />
           <MenuItem onClick={this.handleClose} component={Link} to="/about">

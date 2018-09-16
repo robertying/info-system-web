@@ -3,16 +3,24 @@
  */
 
 import React from "react";
-import FileSaver from "file-saver";
 import Typography from "@material-ui/core/Typography";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import TextField from "@material-ui/core/TextField";
+import FormControl from "@material-ui/core/FormControl";
+import Input from "@material-ui/core/Input";
+import InputLabel from "@material-ui/core/InputLabel";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
 import auth from "../helpers/auth";
 import AlertDialog from "../components/alertDialog";
+import year from "../config/year";
+
 const fetch = auth.authedFetch;
 
 const styles = theme => ({
@@ -51,9 +59,16 @@ class ProfilePage extends React.Component {
       class: "",
       email: "",
       phone: "",
-      degree: ""
+      degree: "",
+      department: "",
+      grade: ""
     },
-    dialogOpen: false
+    dialogOpen: false,
+    email: "",
+    phone: "",
+    showPassword: false,
+    password: "",
+    passwordRepeat: ""
   };
 
   componentDidMount = () => {
@@ -69,21 +84,68 @@ class ProfilePage extends React.Component {
       })
       .then(res => {
         this.setState({ profile: res });
+        this.setState({ email: res.email });
+        this.setState({ phone: res.phone });
       });
   };
 
-  handleChipClick = filename => {
-    fetch("/files/private/" + filename)
-      .then(res => res.blob())
-      .then(blob => FileSaver.saveAs(blob, filename));
-  };
-
-  handleButtonClick = e => {
-    this.setState({ dialogOpen: true });
-  };
-
   handleDialogClose = choice => {
-    this.setState({ dialogOpen: false });
+    if (choice === "no") {
+      this.setState({ dialogOpen: false });
+    } else {
+      let body;
+      if (this.state.password === "" || this.state.password == null) {
+        body = {
+          email: this.state.email,
+          phone: this.state.phone,
+          infoUpdated: year
+        };
+      } else {
+        body = {
+          email: this.state.email,
+          phone: this.state.phone,
+          password: this.state.password,
+          infoUpdated: year
+        };
+      }
+
+      fetch(`/users/${auth.getRole()}s/${auth.getId()}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      }).then(res => {
+        if (res.ok) {
+          this.setState({ dialogOpen: false });
+          this.props.handleSnackbarPopup("个人信息已更新");
+        } else {
+          this.props.handleSnackbarPopup("网络错误，请重试");
+        }
+      });
+    }
+  };
+
+  handleSubmit = () => {
+    if (this.state.password !== this.state.passwordRepeat) {
+      this.props.handleSnackbarPopup("密码重复错误，请重新输入");
+    } else {
+      this.setState({ dialogOpen: true });
+    }
+  };
+
+  handleMouseDownPassword = event => {
+    event.preventDefault();
+  };
+
+  handleClickShowPassword = () => {
+    this.setState({ showPassword: !this.state.showPassword });
+  };
+
+  handleChange = name => event => {
+    this.setState({
+      [name]: event.target.value
+    });
   };
 
   render() {
@@ -97,74 +159,144 @@ class ProfilePage extends React.Component {
             <List>
               <div>
                 <TextField
+                  disabled
                   className={classes.textField}
                   label="姓名"
                   value={this.state.profile.name}
                   InputProps={{ readOnly: true }}
                 />
-                <TextField
-                  className={classes.textField}
-                  label="学号"
-                  value={this.state.profile.id}
-                  InputProps={{ readOnly: true }}
-                />
+                {auth.getRole() === "student" ? (
+                  <TextField
+                    disabled
+                    className={classes.textField}
+                    label="学号"
+                    value={this.state.profile.id}
+                    InputProps={{ readOnly: true }}
+                  />
+                ) : auth.getRole() === "reviewer" ? (
+                  <TextField
+                    disabled
+                    className={classes.textField}
+                    label="管理年级"
+                    value={this.state.profile.grade}
+                    InputProps={{ readOnly: true }}
+                  />
+                ) : (
+                  <TextField
+                    disabled
+                    className={classes.textField}
+                    label="院系"
+                    value={this.state.profile.department}
+                    InputProps={{ readOnly: true }}
+                  />
+                )}
               </div>
+              {auth.getRole() === "student" ? (
+                <div>
+                  <TextField
+                    disabled
+                    className={classes.textField}
+                    label="班级"
+                    value={this.state.profile.class}
+                    InputProps={{ readOnly: true }}
+                  />
+                  <TextField
+                    disabled
+                    className={classes.textField}
+                    label="类型"
+                    value={this.state.profile.degree}
+                    InputProps={{ readOnly: true }}
+                  />
+                </div>
+              ) : null}
               <div>
                 <TextField
                   className={classes.textField}
                   label="邮箱"
-                  value={this.state.profile.email}
-                  InputProps={{ readOnly: true }}
+                  value={this.state.email}
+                  onChange={this.handleChange("email")}
                 />
                 <TextField
                   className={classes.textField}
                   label="电话"
-                  value={this.state.profile.phone}
-                  InputProps={{ readOnly: true }}
+                  value={this.state.phone}
+                  onChange={this.handleChange("phone")}
                 />
               </div>
               <div>
-                <TextField
-                  className={classes.textField}
-                  label="班级"
-                  value={this.state.profile.class}
-                  InputProps={{ readOnly: true }}
-                />
-                <TextField
-                  className={classes.textField}
-                  label="类型"
-                  value={this.state.profile.degree}
-                  InputProps={{ readOnly: true }}
-                />
+                <FormControl className={classes.textField}>
+                  <InputLabel htmlFor="adornment-password">新密码</InputLabel>
+                  <Input
+                    spellCheck="false"
+                    required
+                    id="adornment-password"
+                    type={this.state.showPassword ? "text" : "password"}
+                    value={this.state.password}
+                    placeholder="留空则不更新"
+                    onChange={this.handleChange("password")}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="Toggle password visibility"
+                          onClick={this.handleClickShowPassword}
+                          onMouseDown={this.handleMouseDownPassword}
+                        >
+                          {this.state.showPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                </FormControl>
+                <FormControl className={classes.textField}>
+                  <InputLabel htmlFor="new-adornment-password">
+                    重复新密码
+                  </InputLabel>
+                  <Input
+                    required
+                    spellCheck="false"
+                    id="new-adornment-password"
+                    type={this.state.showPassword ? "text" : "password"}
+                    value={this.state.passwordRepeat}
+                    placeholder="留空则不更新"
+                    onChange={this.handleChange("passwordRepeat")}
+                    endAdornment={
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="Toggle password visibility"
+                          onClick={this.handleClickShowPassword}
+                          onMouseDown={this.handleMouseDownPassword}
+                        >
+                          {this.state.showPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                  />
+                </FormControl>
               </div>
             </List>
             <Button
               className={classes.button}
               variant="raised"
               color="primary"
-              onClick={this.handleButtonClick}
+              onClick={this.handleSubmit}
             >
               修改
             </Button>
-            {/* <Divider />
-            <div>
-              <Chip
-                label="第二成绩单"
-                onClick={() =>
-                  this.handleChipClick(
-                    this.state.profile.secondaryTranscriptFile
-                  )
-                }
-                className={classes.chip}
-              />
-            </div> */}
           </Paper>
         </div>
         <AlertDialog
           title="修改个人信息"
-          content="请联系辅导员来修改个人信息"
+          content="是否确定修改个人信息？"
           fullscreen={false}
-          hasCancel={false}
+          hasCancel={true}
           handleClose={this.handleDialogClose}
           open={this.state.dialogOpen}
         />

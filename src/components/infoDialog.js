@@ -57,7 +57,10 @@ class InfoDialog extends React.Component {
   state = {
     open: this.props.open,
     confirmDialogOpen: false,
-    showPassword: false
+    showPassword: false,
+    email: "",
+    phone: "",
+    password: ""
   };
 
   // 由 parent 控制此 child 的状态
@@ -71,12 +74,10 @@ class InfoDialog extends React.Component {
     } else {
       let body = {
         email: this.state.email,
+        phone: this.state.phone,
         password: this.state.password,
         infoUpdated: year
       };
-      if (auth.getRole() === "student") {
-        body.phone = this.state.phone;
-      }
       fetch(`/users/${auth.getRole()}s/${auth.getId()}`, {
         method: "PUT",
         headers: {
@@ -153,19 +154,16 @@ class InfoDialog extends React.Component {
                 value={this.state.email}
                 onChange={this.handleChange("email")}
               />
-              {auth.getRole() === "student" ? (
-                <TextField
-                  className={classes.textField}
-                  required
-                  margin="normal"
-                  autoComplete="off"
-                  id="phone"
-                  label="手机"
-                  value={this.state.phone}
-                  onChange={this.handleChange("phone")}
-                />
-              ) : null}
-
+              <TextField
+                className={classes.textField}
+                required
+                margin="normal"
+                autoComplete="off"
+                id="phone"
+                label="手机"
+                value={this.state.phone}
+                onChange={this.handleChange("phone")}
+              />
               <FormControl className={classes.textField}>
                 <InputLabel htmlFor="adornment-password">新密码</InputLabel>
                 <Input
