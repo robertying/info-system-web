@@ -11,8 +11,9 @@ const fetch = auth.authedFetch;
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit,
-    marginLeft: 0
+    margin: theme.spacing.unit * 3,
+    marginLeft: 0,
+    marginBottom: 10
   },
   input: {
     display: "none"
@@ -36,7 +37,7 @@ class XLSXGenerator extends React.Component {
 
   handleClick = e => {
     import("xlsx").then(XLSX => {
-      fetch("/applications", {
+      fetch(`/applications?applicationType=${this.props.type}`, {
         method: "GET"
       })
         .then(res => {
@@ -45,6 +46,7 @@ class XLSXGenerator extends React.Component {
           }
         })
         .then(async res => {
+          console.log(res);
           let applications = res;
           await Promise.all(
             applications.map(async (n, index) => {
@@ -122,29 +124,28 @@ class XLSXGenerator extends React.Component {
             })
           );
 
-          const head = () => {
-            if (this.props.type === "mentor") {
-              return ["申请者", "班级", "学号", "申请导师", "状态"];
-            }
-            if (this.props.type === "honor") {
-              return [
-                "姓名",
-                "班级",
-                "学号",
-                "已获荣誉数",
-                "学业优秀奖",
-                "科技创新优秀奖",
-                "社会工作优秀奖",
-                "社会实践优秀奖",
-                "志愿公益优秀奖",
-                "文艺优秀奖",
-                "体育优秀奖",
-                "学习进步奖",
-                "综合优秀奖"
-              ];
-            }
-          };
+          const head =
+            this.props.type === "mentor"
+              ? ["申请者", "班级", "学号", "申请导师", "状态"]
+              : this.props.type === "honor"
+                ? [
+                    "姓名",
+                    "班级",
+                    "学号",
+                    "荣誉数",
+                    "学业优秀奖",
+                    "科技创新优秀奖",
+                    "社会工作优秀奖",
+                    "社会实践优秀奖",
+                    "志愿公益优秀奖",
+                    "文艺优秀奖",
+                    "体育优秀奖",
+                    "学习进步奖",
+                    "综合优秀奖"
+                  ]
+                : null;
           applications.unshift(head);
+          console.log(applications);
 
           const worksheet = XLSX.utils.aoa_to_sheet(applications);
           let workbook = XLSX.utils.book_new();
