@@ -101,6 +101,7 @@ const login = (id, password) => {
       setName(res.name);
       setId(res.id);
       setClass(res.class);
+      setGrade(res.grade);
       return Promise.resolve(res);
     });
 };
