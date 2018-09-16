@@ -120,7 +120,7 @@ class LoginPage extends React.Component {
                 value={this.state.id}
                 onChange={this.handleChange("id")}
                 margin="normal"
-                spellcheck="false"
+                spellCheck="false"
               />
             </div>
             <div>
