@@ -20,6 +20,14 @@ const getClass = () => {
   return localStorage.getItem("class");
 };
 
+const setGrade = grade => {
+  localStorage.setItem("grade", grade);
+};
+
+const getGrade = () => {
+  return localStorage.getItem("grade");
+};
+
 const setId = id => {
   localStorage.setItem("id", id);
 };
@@ -126,6 +134,8 @@ export default {
   getName,
   setClass,
   getClass,
+  setGrade,
+  getGrade,
   logout,
   isTokenExpired,
   isLoggedIn,
