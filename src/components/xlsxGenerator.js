@@ -46,7 +46,6 @@ class XLSXGenerator extends React.Component {
           }
         })
         .then(async res => {
-          console.log(res);
           let applications = res;
           await Promise.all(
             applications.map(async (n, index) => {
@@ -60,6 +59,7 @@ class XLSXGenerator extends React.Component {
                   }
                 })
                 .then(res => {
+                  application.push(n.id);
                   application.push(res.name);
                   application.push(res.class);
                   application.push(res.id);
@@ -129,6 +129,7 @@ class XLSXGenerator extends React.Component {
               ? ["申请者", "班级", "学号", "申请导师", "状态"]
               : this.props.type === "honor"
                 ? [
+                    "序号",
                     "姓名",
                     "班级",
                     "学号",
