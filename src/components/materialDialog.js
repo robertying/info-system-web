@@ -10,11 +10,13 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContentText from "@material-ui/core/DialogContentText";
 import withMobileDialog from "@material-ui/core/withMobileDialog";
 import Chip from "@material-ui/core/Chip";
 import { withStyles } from "@material-ui/core/styles";
 import { upload, download, trimFilename } from "../helpers/file";
 import auth from "../helpers/auth";
+import year from "../config/year";
 
 const fetch = auth.authedFetch;
 
@@ -93,51 +95,162 @@ class MatrialDialog extends React.Component {
       return;
     }
 
-    if (this.state.files.length === 0) {
-      const body = {
-        honor: {
-          contents: {
-            reason: this.state.reason
-          },
-          attachments: []
-        }
-      };
-      return fetch("/applications/" + this.state.id, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      }).then(res => {
-        if (res.status === 204) {
-          this.props.handleDialogClose(body);
-          this.handleClose();
-          this.props.handleSnackbarPopup("申请材料已提交");
-        } else {
-          this.props.handleSnackbarPopup("操作失败，请重试");
-        }
-      });
-    } else {
-      let attachments = [];
-      Promise.all(
-        this.state.files.map(file => {
-          return new Promise(res =>
-            upload(false, file.data).then(filename => {
-              attachments.push(filename);
-              res(attachments);
-            })
-          );
+    if (this.state.id == null || this.state.id === "") {
+      fetch(`/applications?applicantId=${auth.getId()}`, {
+        method: "GET"
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          }
         })
-      ).then(res => {
+        .then(res => {
+          if (res && res[0]) {
+            this.setState({ id: res[0].id });
+            const id = res[0].id;
+
+            if (this.state.files.length === 0) {
+              const body = {
+                honor: {
+                  contents: {
+                    reason: this.state.reason
+                  },
+                  attachments: []
+                }
+              };
+              return fetch("/applications/" + id, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+              }).then(res => {
+                if (res.status === 204) {
+                  this.props.handleDialogClose(body);
+                  this.handleClose();
+                  this.props.handleSnackbarPopup("申请材料已提交");
+                } else {
+                  this.props.handleSnackbarPopup("操作失败，请重试");
+                }
+              });
+            } else {
+              let attachments = [];
+              Promise.all(
+                this.state.files.map(file => {
+                  return new Promise(res =>
+                    upload(false, file.data).then(filename => {
+                      attachments.push(filename);
+                      res(attachments);
+                    })
+                  );
+                })
+              ).then(res => {
+                const body = {
+                  honor: {
+                    contents: {
+                      reason: this.state.reason
+                    },
+                    attachments: attachments
+                  }
+                };
+                fetch("/applications/" + id, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(body)
+                }).then(res => {
+                  if (res.status === 204) {
+                    this.props.handleDialogClose(body);
+                    this.handleClose();
+                    this.props.handleSnackbarPopup("申请材料已提交");
+                  } else {
+                    this.props.handleSnackbarPopup("操作失败，请重试");
+                  }
+                });
+              });
+            }
+          } else {
+            if (this.state.files.length === 0) {
+              const body = {
+                applicantId: auth.getId(),
+                applicantName: auth.getName(),
+                year: year,
+                honor: {
+                  contents: {
+                    reason: this.state.reason
+                  },
+                  attachments: []
+                }
+              };
+              return fetch("/applications", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+              }).then(res => {
+                if (res.status === 201) {
+                  this.props.handleDialogClose(body);
+                  this.handleClose();
+                  this.props.handleSnackbarPopup("申请材料已提交");
+                } else {
+                  this.props.handleSnackbarPopup("操作失败，请重试");
+                }
+              });
+            } else {
+              let attachments = [];
+              Promise.all(
+                this.state.files.map(file => {
+                  return new Promise(res =>
+                    upload(false, file.data).then(filename => {
+                      attachments.push(filename);
+                      res(attachments);
+                    })
+                  );
+                })
+              ).then(res => {
+                const body = {
+                  applicantId: auth.getId(),
+                  applicantName: auth.getName(),
+                  year: year,
+                  honor: {
+                    contents: {
+                      reason: this.state.reason
+                    },
+                    attachments: attachments
+                  }
+                };
+                fetch("/applications", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(body)
+                }).then(res => {
+                  if (res.status === 201) {
+                    this.props.handleDialogClose(body);
+                    this.handleClose();
+                    this.props.handleSnackbarPopup("申请材料已提交");
+                  } else {
+                    this.props.handleSnackbarPopup("操作失败，请重试");
+                  }
+                });
+              });
+            }
+          }
+        });
+    } else {
+      if (this.state.files.length === 0) {
         const body = {
           honor: {
             contents: {
               reason: this.state.reason
             },
-            attachments: attachments
+            attachments: []
           }
         };
-        fetch("/applications/" + this.props.id, {
+        return fetch("/applications/" + this.state.id, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"
@@ -152,7 +265,43 @@ class MatrialDialog extends React.Component {
             this.props.handleSnackbarPopup("操作失败，请重试");
           }
         });
-      });
+      } else {
+        let attachments = [];
+        Promise.all(
+          this.state.files.map(file => {
+            return new Promise(res =>
+              upload(false, file.data).then(filename => {
+                attachments.push(filename);
+                res(attachments);
+              })
+            );
+          })
+        ).then(res => {
+          const body = {
+            honor: {
+              contents: {
+                reason: this.state.reason
+              },
+              attachments: attachments
+            }
+          };
+          fetch("/applications/" + this.state.id, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+          }).then(res => {
+            if (res.status === 204) {
+              this.props.handleDialogClose(body);
+              this.handleClose();
+              this.props.handleSnackbarPopup("申请材料已提交");
+            } else {
+              this.props.handleSnackbarPopup("操作失败，请重试");
+            }
+          });
+        });
+      }
     }
   };
 
@@ -204,6 +353,11 @@ class MatrialDialog extends React.Component {
             {this.state.readOnly ? "申请材料查看" : "申请材料提交"}
           </DialogTitle>
           <DialogContent>
+            {this.state.readOnly ? null : (
+              <DialogContentText>
+                申请材料提交后无法修改和补充，请确保材料完整后提交。（注意：上传附件可以多选）
+              </DialogContentText>
+            )}
             <TextField
               required
               autoFocus
