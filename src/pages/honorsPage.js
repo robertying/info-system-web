@@ -30,6 +30,7 @@ import AttachmentIcon from "@material-ui/icons/Attachment";
 import AlertDialog from "../components/alertDialog";
 import MaterialDialog from "../components/materialDialog";
 import XlsxGenerator from "../components/xlsxGenerator";
+import XlsxParser from "../components/xlsxParser";
 import { trimFilename, download } from "../helpers/file";
 import auth from "../helpers/auth";
 
@@ -48,6 +49,9 @@ const styles = theme => ({
   flex: {
     display: "flex",
     justifyContent: "space-between"
+  },
+  simpleFlex: {
+    display: "flex"
   },
   container: {
     maxWidth: 900,
@@ -282,30 +286,75 @@ class HonorsPage extends React.Component {
       this.setState({ confirmDialogOpen: false });
     } else if (choice === "yes") {
       const title = this.state.honors[this.state.willConfirmHonorIndex].title;
-      fetch("/applications/" + this.state.applicationId, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          honor: {
-            status: {
-              [title]: "申请中"
-            }
-          }
+
+      if (this.state.applicationId == null || this.state.applicationId === "") {
+        fetch(`/applications?applicantId=${auth.getId()}`, {
+          method: "GET"
         })
-      }).then(res => {
-        if (res.status === 204) {
-          let status = this.state.status;
-          status[this.state.honors[this.state.willConfirmHonorIndex].title] =
-            "申请中";
-          this.setState({ status });
-          this.setState({ confirmDialogOpen: false });
-          this.props.handleSnackbarPopup("申请状态已更新");
-        } else {
-          this.props.handleSnackbarPopup("操作失败，请重试");
-        }
-      });
+          .then(res => {
+            if (res.ok) {
+              return res.json();
+            }
+          })
+          .then(res => {
+            if (res && res[0]) {
+              const id = res[0].id;
+
+              fetch("/applications/" + id, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  honor: {
+                    status: {
+                      [title]: "申请中"
+                    }
+                  }
+                })
+              }).then(res => {
+                if (res.status === 204) {
+                  let status = this.state.status;
+                  status[
+                    this.state.honors[this.state.willConfirmHonorIndex].title
+                  ] = "申请中";
+                  this.setState({ status });
+                  this.setState({ confirmDialogOpen: false });
+                  this.props.handleSnackbarPopup("申请状态已更新");
+                } else {
+                  this.props.handleSnackbarPopup("操作失败，请重试");
+                }
+              });
+            } else {
+              this.props.handleSnackbarPopup("请先补充申请材料");
+            }
+          });
+      } else {
+        fetch("/applications/" + this.state.applicationId, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            honor: {
+              status: {
+                [title]: "申请中"
+              }
+            }
+          })
+        }).then(res => {
+          if (res.status === 204) {
+            let status = this.state.status;
+            status[this.state.honors[this.state.willConfirmHonorIndex].title] =
+              "申请中";
+            this.setState({ status });
+            this.setState({ confirmDialogOpen: false });
+            this.props.handleSnackbarPopup("申请状态已更新");
+          } else {
+            this.props.handleSnackbarPopup("操作失败，请重试");
+          }
+        });
+      }
     }
   };
 
@@ -350,6 +399,20 @@ class HonorsPage extends React.Component {
     ]);
 
     const WithAuthXlsxGenerator = withAuth(XlsxGeneratorForHonors, [
+      "reviewer",
+      "admin"
+    ]);
+
+    const XlsxParserForHonors = () => {
+      return (
+        <XlsxParser
+          type="honor"
+          handleSnackbarPopup={this.handleSnackbarPopup}
+        />
+      );
+    };
+
+    const WithAuthXlsxParser = withAuth(XlsxParserForHonors, [
       "reviewer",
       "admin"
     ]);
@@ -464,7 +527,7 @@ class HonorsPage extends React.Component {
                           <TableRow key={index}>
                             <TableCell>{n.title}</TableCell>
                             <TableCell>
-                              {status[n.title] == null
+                              {status[n.title] == null || status[n.title] === ""
                                 ? "未申请"
                                 : status[n.title]}
                             </TableCell>
@@ -475,15 +538,21 @@ class HonorsPage extends React.Component {
                                   this.handleConfirmDialogOpen(index)
                                 }
                                 disabled={
-                                  auth.getRole() === "reviewer" ||
+                                  (auth.getRole() === "reviewer" ||
                                   auth.getRole() === "teacher" ||
                                   (auth.getRole() === "student" &&
                                     auth.getClass()[1] === "8")
                                     ? true
                                     : this.state.event.activeStep === 0 &&
-                                      status[n.title] == null
+                                      (status[n.title] == null ||
+                                        status[n.title] === "")
                                       ? false
-                                      : true
+                                      : true) ||
+                                  (this.state.contents &&
+                                  this.state.contents.reason != null &&
+                                  this.state.contents.reason !== ""
+                                    ? false
+                                    : true)
                                 }
                               >
                                 申请
@@ -499,7 +568,10 @@ class HonorsPage extends React.Component {
             )}
             {auth.getRole() === "reviewer" ? (
               <div>
-                <WithAuthXlsxGenerator />
+                <div className={classes.simpleFlex}>
+                  <WithAuthXlsxGenerator />
+                  <WithAuthXlsxParser />
+                </div>
                 <Paper className={classes.paper}>
                   <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
@@ -609,7 +681,10 @@ class HonorsPage extends React.Component {
                                             color={
                                               n.honor.status[key] === "已通过"
                                                 ? "primary"
-                                                : "default"
+                                                : n.honor.status[key] ===
+                                                  "未通过"
+                                                  ? "secondary"
+                                                  : "default"
                                             }
                                           />
                                         );
