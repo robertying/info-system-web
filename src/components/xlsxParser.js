@@ -8,6 +8,7 @@ import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { withStyles } from "@material-ui/core/styles";
 import auth from "../helpers/auth";
+import year from "../config/year";
 
 const fetch = auth.authedFetch;
 
@@ -46,6 +47,18 @@ class XLSXParser extends React.Component {
     progressHidden: true
   };
 
+  head = [
+    "学业优秀奖",
+    "科技创新优秀奖",
+    "社会工作优秀奖",
+    "社会实践优秀奖",
+    "志愿公益优秀奖",
+    "文艺优秀奖",
+    "体育优秀奖",
+    "学习进步奖",
+    "综合优秀奖"
+  ];
+
   handleSnackbarPopup = message => {
     this.props.handleSnackbarPopup(message);
   };
@@ -68,12 +81,21 @@ class XLSXParser extends React.Component {
         // 校验文件
         let flag = false;
         data.shift();
-        data.forEach((n, index) => {
-          if (n.length % 2 === 0) {
-            this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
-            flag = true;
-          }
-        });
+        if (this.props.type !== "honor") {
+          data.forEach((n, index) => {
+            if (n.length % 2) {
+              this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
+              flag = true;
+            }
+          });
+        } else {
+          data.forEach((n, index) => {
+            if (n.length !== 13) {
+              this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
+              flag = true;
+            }
+          });
+        }
         if (flag) {
           this.setState({ progressHidden: true });
           return;
@@ -92,43 +114,127 @@ class XLSXParser extends React.Component {
           }
 
           let status = {};
-          for (let index = 5; index < n.length; index = index + 2) {
-            const title = n[index];
-            const amount = n[index + 1];
-            status[title] = amount;
-          }
-          fetch("/applications/" + n[0], {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(
-              this.props.type === "scholarship"
-                ? {
-                    scholarship: {
-                      status: status
-                    }
-                  }
-                : {
-                    financialAid: {
-                      status: status
-                    }
-                  }
-            )
-          }).then(res => {
-            if (res.status === 204) {
-              count++;
-              this.setState({ completed: (count / total) * 100 });
-              if (count === total) {
-                this.handleSnackbarPopup("上传完成");
-                this.setState({ progressHidden: true });
-              }
-            } else {
-              this.handleSnackbarPopup("上传失败，请重试");
-              flag = true;
-              this.setState({ progressHidden: true });
+          if (this.props.type !== "honor") {
+            for (let index = 4; index < n.length; index = index + 2) {
+              const title = n[index];
+              const amount = n[index + 1];
+              status[title] = amount;
             }
-          });
+          } else {
+            for (let index = 4; index < n.length; index++) {
+              if (n[index] !== "") {
+                status[this.head[index - 4]] = n[index];
+              }
+            }
+          }
+
+          fetch(`/applications?applicantId=${n[2]}`, {
+            method: "GET"
+          })
+            .then(res => {
+              if (res.ok) {
+                return res.json();
+              }
+            })
+            .then(res => {
+              if (res && res[0]) {
+                fetch("/applications/" + res[0].id, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(
+                    this.props.type === "scholarship"
+                      ? {
+                          applicantId: n[2],
+                          applicantName: n[0],
+                          year: year,
+                          scholarship: {
+                            status: status
+                          }
+                        }
+                      : this.props.type === "financialAid"
+                        ? {
+                            applicantId: n[2],
+                            applicantName: n[0],
+                            year: year,
+                            financialAid: {
+                              status: status
+                            }
+                          }
+                        : {
+                            applicantId: n[2],
+                            applicantName: n[0],
+                            year: year,
+                            honor: {
+                              status: status
+                            }
+                          }
+                  )
+                }).then(res => {
+                  if (res.status === 204) {
+                    count++;
+                    this.setState({ completed: (count / total) * 100 });
+                    if (count === total) {
+                      this.handleSnackbarPopup("上传完成");
+                      this.setState({ progressHidden: true });
+                    }
+                  } else {
+                    this.handleSnackbarPopup("上传失败，请重试");
+                    flag = true;
+                    this.setState({ progressHidden: true });
+                  }
+                });
+              } else {
+                fetch("/applications", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(
+                    this.props.type === "scholarship"
+                      ? {
+                          applicantId: n[2],
+                          applicantName: n[0],
+                          year: year,
+                          scholarship: {
+                            status: status
+                          }
+                        }
+                      : this.props.type === "financialAid"
+                        ? {
+                            applicantId: n[2],
+                            applicantName: n[0],
+                            year: year,
+                            financialAid: {
+                              status: status
+                            }
+                          }
+                        : {
+                            applicantId: n[2],
+                            applicantName: n[0],
+                            year: year,
+                            honor: {
+                              status: status
+                            }
+                          }
+                  )
+                }).then(res => {
+                  if (res.status === 201) {
+                    count++;
+                    this.setState({ completed: (count / total) * 100 });
+                    if (count === total) {
+                      this.handleSnackbarPopup("上传完成");
+                      this.setState({ progressHidden: true });
+                    }
+                  } else {
+                    this.handleSnackbarPopup("上传失败，请重试");
+                    flag = true;
+                    this.setState({ progressHidden: true });
+                  }
+                });
+              }
+            });
         });
       };
       if (rABS) {
