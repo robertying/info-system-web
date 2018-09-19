@@ -104,6 +104,10 @@ const styles = theme => ({
     justifyContent: "left",
     flexWrap: "wrap",
     padding: theme.spacing.unit / 2
+  },
+  cell: {
+    whiteSpace: "nowrap",
+    maxWidth: 40
   }
 });
 
@@ -577,18 +581,21 @@ class HonorsPage extends React.Component {
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell>姓名</TableCell>
-                          <TableCell>班级</TableCell>
-                          <TableCell>学号</TableCell>
-                          <TableCell>荣誉数</TableCell>
+                          <TableCell className={classes.cell}>姓名</TableCell>
+                          <TableCell className={classes.cell}>班级</TableCell>
+                          <TableCell className={classes.cell}>学号</TableCell>
+                          <TableCell className={classes.cell}>
+                            申请材料
+                          </TableCell>
+                          <TableCell className={classes.cell}>
+                            申请综奖
+                          </TableCell>
                           <TableCell>申请状态</TableCell>
-                          <TableCell>综合优秀奖</TableCell>
-                          <TableCell>申请材料</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         <TableRow>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -596,7 +603,7 @@ class HonorsPage extends React.Component {
                               onChange={this.handleInputChange("applicantName")}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -604,7 +611,7 @@ class HonorsPage extends React.Component {
                               onChange={this.handleInputChange("class")}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -612,16 +619,8 @@ class HonorsPage extends React.Component {
                               onChange={this.handleInputChange("applicantId")}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Input
-                              className={classes.searchBar}
-                              disableUnderline={true}
-                              placeholder="按荣誉数查找"
-                              onChange={this.handleInputChange("totalHonors")}
-                            />
-                          </TableCell>
-                          <TableCell />
-                          <TableCell>
+                          <TableCell className={classes.cell} />
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -645,12 +644,6 @@ class HonorsPage extends React.Component {
                               n.applicantId
                                 .toString()
                                 .includes(this.state.applicantId.toString()) &&
-                              (this.state.totalHonors === ""
-                                ? true
-                                : Object.keys(
-                                    n.honor.status
-                                  ).length.toString() ===
-                                  this.state.totalHonors) &&
                               (this.state.comprehensiveHonor === "是"
                                 ? n.honor.status["综合优秀奖"] != null
                                 : n.honor.status["综合优秀奖"] == null)
@@ -663,11 +656,32 @@ class HonorsPage extends React.Component {
                           .map(n => {
                             return (
                               <TableRow key={n.id}>
-                                <TableCell>{n.applicantName}</TableCell>
-                                <TableCell>{n.class}</TableCell>
-                                <TableCell>{n.applicantId}</TableCell>
-                                <TableCell>
-                                  {Object.keys(n.honor.status).length}
+                                <TableCell className={classes.cell}>
+                                  {n.applicantName}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.class}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.applicantId}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  <MaterialDialog
+                                    id={n.id}
+                                    buttonDisabled={false}
+                                    readOnly={true}
+                                    handleDialogClose={
+                                      this.handleReadOnlyMaterialDialogClose
+                                    }
+                                    handleSnackbarPopup={
+                                      this.handleSnackbarPopup
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.honor.status["综合优秀奖"] != null
+                                    ? "是"
+                                    : "否"}
                                 </TableCell>
                                 <TableCell>
                                   <div className={classes.chips}>
@@ -691,24 +705,6 @@ class HonorsPage extends React.Component {
                                       }
                                     )}
                                   </div>
-                                </TableCell>
-                                <TableCell>
-                                  {n.honor.status["综合优秀奖"] != null
-                                    ? "是"
-                                    : "否"}
-                                </TableCell>
-                                <TableCell>
-                                  <MaterialDialog
-                                    id={n.id}
-                                    buttonDisabled={false}
-                                    readOnly={true}
-                                    handleDialogClose={
-                                      this.handleReadOnlyMaterialDialogClose
-                                    }
-                                    handleSnackbarPopup={
-                                      this.handleSnackbarPopup
-                                    }
-                                  />
                                 </TableCell>
                               </TableRow>
                             );
@@ -740,12 +736,6 @@ class HonorsPage extends React.Component {
                                     .includes(
                                       this.state.applicantId.toString()
                                     ) &&
-                                  (this.state.totalHonors === ""
-                                    ? true
-                                    : Object.keys(
-                                        n.honor.status
-                                      ).length.toString() ===
-                                      this.state.totalHonors) &&
                                   (this.state.comprehensiveHonor === "是"
                                     ? n.honor.status["综合优秀奖"] != null
                                     : n.honor.status["综合优秀奖"] == null)

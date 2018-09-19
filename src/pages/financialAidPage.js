@@ -90,6 +90,10 @@ const styles = theme => ({
     justifyContent: "left",
     flexWrap: "wrap",
     padding: theme.spacing.unit / 2
+  },
+  cell: {
+    whiteSpace: "nowrap",
+    maxWidth: 40
   }
 });
 
@@ -401,17 +405,21 @@ class FinancialAidPage extends React.Component {
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <TableCell>姓名</TableCell>
-                          <TableCell>班级</TableCell>
-                          <TableCell>学号</TableCell>
-                          <TableCell>助学金总额</TableCell>
+                          <TableCell className={classes.cell}>姓名</TableCell>
+                          <TableCell className={classes.cell}>班级</TableCell>
+                          <TableCell className={classes.cell}>学号</TableCell>
+                          <TableCell className={classes.cell}>
+                            助学金总额
+                          </TableCell>
                           <TableCell>资助状态</TableCell>
-                          <TableCell>其他材料</TableCell>
+                          <TableCell className={classes.cell}>
+                            其他材料
+                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         <TableRow>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -419,7 +427,7 @@ class FinancialAidPage extends React.Component {
                               onChange={this.handleInputChange("applicantName")}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -427,7 +435,7 @@ class FinancialAidPage extends React.Component {
                               onChange={this.handleInputChange("class")}
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className={classes.cell}>
                             <Input
                               className={classes.searchBar}
                               disableUnderline={true}
@@ -435,9 +443,9 @@ class FinancialAidPage extends React.Component {
                               onChange={this.handleInputChange("applicantId")}
                             />
                           </TableCell>
+                          <TableCell className={classes.cell} />
                           <TableCell />
-                          <TableCell />
-                          <TableCell />
+                          <TableCell className={classes.cell} />
                         </TableRow>
                         {this.state.applications
                           .filter(n => {
@@ -460,10 +468,16 @@ class FinancialAidPage extends React.Component {
                           .map(n => {
                             return (
                               <TableRow key={n.id}>
-                                <TableCell>{n.applicantName}</TableCell>
-                                <TableCell>{n.class}</TableCell>
-                                <TableCell>{n.applicantId}</TableCell>
-                                <TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.applicantName}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.class}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
+                                  {n.applicantId}
+                                </TableCell>
+                                <TableCell className={classes.cell}>
                                   {Object.values(n.financialAid.status).reduce(
                                     (a, b) => a + b,
                                     0
@@ -489,7 +503,9 @@ class FinancialAidPage extends React.Component {
                                     )}
                                   </div>
                                 </TableCell>
-                                <TableCell>- -</TableCell>
+                                <TableCell className={classes.cell}>
+                                  - -
+                                </TableCell>
                               </TableRow>
                             );
                           })}
