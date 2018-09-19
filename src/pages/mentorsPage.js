@@ -125,7 +125,7 @@ class MentorsPage extends React.Component {
       });
 
     if (auth.getRole() === "student") {
-      fetch(`/applications?applicantId=${auth.getId()}`, {
+      fetch(`/applications?applicantId=${auth.getId()}&applicationType=mentor`, {
         method: "GET"
       })
         .then(res => {
@@ -160,7 +160,7 @@ class MentorsPage extends React.Component {
     }
 
     if (auth.getRole() === "teacher") {
-      fetch(`/applications?teacherName=${auth.getName()}`, { method: "GET" })
+      fetch(`/applications?teacherName=${auth.getName()}&applicationType=mentor`, { method: "GET" })
         .then(res => {
           if (res.ok) {
             return res.json();
@@ -189,7 +189,9 @@ class MentorsPage extends React.Component {
     }
 
     if (auth.getRole() === "reviewer") {
-      fetch("/applications", {
+      fetch(auth.getGrade()
+      ? `/applications?applicantGrade=${auth.getGrade()}&applicationType=mentor`
+      : "/applications?applicationType=mentor", {
         method: "GET"
       })
         .then(res => {
