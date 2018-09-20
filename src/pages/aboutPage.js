@@ -21,6 +21,7 @@ const styles = theme => ({
   },
   container: {
     maxWidth: 700,
+    width: "85vw",
     marginLeft: "auto",
     marginRight: "auto"
   },

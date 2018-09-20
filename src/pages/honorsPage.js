@@ -55,7 +55,7 @@ const styles = theme => ({
   },
   container: {
     maxWidth: 900,
-    width: "90%",
+    width: "85vw",
     marginLeft: "auto",
     marginRight: "auto"
   },
