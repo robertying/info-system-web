@@ -57,7 +57,7 @@ class XLSXParser extends React.Component {
     "体育优秀奖",
     "学习进步奖",
     "综合优秀奖",
-    "已获新生奖"
+    "无校级荣誉"
   ];
 
   handleSnackbarPopup = message => {
