@@ -205,8 +205,9 @@ class NavigationDrawer extends React.Component {
               {drawer}
             </Drawer>
           </Hidden>
-          <Hidden smDown implementation="css" className={classes.flex}>
+          <Hidden smDown implementation="css">
             <Drawer
+              className={classes.flex}
               variant="permanent"
               open
               classes={{ paper: classes.drawerPaper }}
