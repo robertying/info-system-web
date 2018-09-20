@@ -345,6 +345,7 @@ class MatrialDialog extends React.Component {
           申请材料
         </Button>
         <Dialog
+          fullWidth
           open={this.state.open}
           onClose={this.handleClose}
           aria-labelledby="form-dialog-title"
