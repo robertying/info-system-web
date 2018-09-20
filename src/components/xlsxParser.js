@@ -56,7 +56,8 @@ class XLSXParser extends React.Component {
     "文艺优秀奖",
     "体育优秀奖",
     "学习进步奖",
-    "综合优秀奖"
+    "综合优秀奖",
+    "已获新生奖"
   ];
 
   handleSnackbarPopup = message => {
@@ -90,7 +91,7 @@ class XLSXParser extends React.Component {
           });
         } else {
           data.forEach((n, index) => {
-            if (n.length !== 13) {
+            if (n.length !== 14) {
               this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
               flag = true;
             }

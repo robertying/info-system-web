@@ -117,6 +117,11 @@ class XLSXGenerator extends React.Component {
                     } else {
                       application.push("");
                     }
+                    if (n.honor.status["已获新生奖"]) {
+                      application.push(n.honor.status["已获新生奖"]);
+                    } else {
+                      application.push("");
+                    }
                   }
                   applications[index] = application;
                 });
@@ -140,7 +145,8 @@ class XLSXGenerator extends React.Component {
                     "文艺优秀奖",
                     "体育优秀奖",
                     "学习进步奖",
-                    "综合优秀奖"
+                    "综合优秀奖",
+                    "已获新生奖"
                   ]
                 : null;
           applications.unshift(head);
