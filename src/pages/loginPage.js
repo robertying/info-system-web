@@ -123,7 +123,7 @@ class LoginPage extends React.Component {
               <img className={classes.logoImage} src={Logo} alt="logo" />
               <div>
                 <TextField
-                  id="username"
+                  id="username-mobile"
                   label="用户名"
                   placeholder="学号 / 邮箱"
                   className={classes.textField}
@@ -135,10 +135,12 @@ class LoginPage extends React.Component {
               </div>
               <div>
                 <FormControl className={classes.textField}>
-                  <InputLabel htmlFor="adornment-password">密码</InputLabel>
+                  <InputLabel htmlFor="adornment-password-mobile">
+                    密码
+                  </InputLabel>
                   <Input
                     spellCheck="false"
-                    id="adornment-password"
+                    id="adornment-password-mobile"
                     type={this.state.showPassword ? "text" : "password"}
                     value={this.state.password}
                     onChange={this.handleChange("password")}
