@@ -113,7 +113,8 @@ class LoginPage extends React.Component {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="title" color="inherit" noWrap>
-              信息管理系统・清华大学电子工程系
+              <Hidden mdUp>信息管理系统</Hidden>
+              <Hidden smDown>信息管理系统・清华大学电子工程系</Hidden>
             </Typography>
           </Toolbar>
         </AppBar>
