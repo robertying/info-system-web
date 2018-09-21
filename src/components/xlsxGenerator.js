@@ -47,7 +47,9 @@ class XLSXGenerator extends React.Component {
         })
         .then(async res => {
           if (this.props.type === "honor") {
-            res = res.filter(n => Object.keys(n.honor.status).length !== 0);
+            res = res.filter(
+              n => n.honor.status && Object.keys(n.honor.status).length !== 0
+            );
           }
 
           let applications = res;
