@@ -20,6 +20,7 @@ import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Input from "@material-ui/core/Input";
+import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
 import withAuth from "../components/withAuthHOC";
 import TablePaginationActionsWrapped from "../components/tablePaginationActionsWrapped";
@@ -121,7 +122,7 @@ class HonorsPage extends React.Component {
     applicantId: "",
     class: "",
     totalHonors: "",
-    comprehensiveHonor: "-",
+    comprehensiveHonor: false,
     status: {},
     contents: {},
     attachments: [],
@@ -239,6 +240,10 @@ class HonorsPage extends React.Component {
 
   handleInputChange = name => e => {
     this.setState({ [name]: e.target.value });
+  };
+
+  handleSwitchChange = name => e => {
+    this.setState({ comprehensiveHonor: !this.state.comprehensiveHonor });
   };
 
   handleSnackbarPopup = message => {
@@ -621,13 +626,13 @@ class HonorsPage extends React.Component {
                           </TableCell>
                           <TableCell className={classes.cell} />
                           <TableCell className={classes.cell}>
-                            <Input
-                              className={classes.searchBar}
-                              disableUnderline={true}
-                              placeholder="按综奖查找"
-                              onChange={this.handleInputChange(
+                            <Switch
+                              checked={this.state.comprehensiveHonor}
+                              onChange={this.handleSwitchChange(
                                 "comprehensiveHonor"
                               )}
+                              value="comprehensiveHonorChecked"
+                              color="default"
                             />
                           </TableCell>
                           <TableCell />
@@ -644,9 +649,10 @@ class HonorsPage extends React.Component {
                               n.applicantId
                                 .toString()
                                 .includes(this.state.applicantId.toString()) &&
-                              (this.state.comprehensiveHonor === "是"
-                                ? n.honor.status["综合优秀奖"] != null
-                                : n.honor.status["综合优秀奖"] == null)
+                              (this.state.comprehensiveHonor
+                                ? n.honor.status["综合优秀奖"] === "申请中" ||
+                                  n.honor.status["综合优秀奖"] === "已获得"
+                                : true)
                             );
                           })
                           .slice(
@@ -736,9 +742,11 @@ class HonorsPage extends React.Component {
                                     .includes(
                                       this.state.applicantId.toString()
                                     ) &&
-                                  (this.state.comprehensiveHonor === "是"
-                                    ? n.honor.status["综合优秀奖"] != null
-                                    : n.honor.status["综合优秀奖"] == null)
+                                  (this.state.comprehensiveHonor
+                                    ? n.honor.status["综合优秀奖"] ===
+                                        "申请中" ||
+                                      n.honor.status["综合优秀奖"] === "已获得"
+                                    : true)
                                 );
                               }).length
                             }
