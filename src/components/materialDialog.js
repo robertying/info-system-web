@@ -334,14 +334,26 @@ class MatrialDialog extends React.Component {
 
     return (
       <div>
-        <Button
-          className={classes.button}
-          onClick={this.handleClickOpen}
-          color="primary"
-          disabled={this.state.buttonDisabled}
-        >
-          提交申请材料
-        </Button>
+        {this.state.readOnly ? (
+          <Button
+            className={classes.button}
+            onClick={this.handleClickOpen}
+            color="primary"
+            disabled={this.state.buttonDisabled}
+          >
+            申请材料
+          </Button>
+        ) : (
+          <Button
+            className={classes.button}
+            onClick={this.handleClickOpen}
+            color="primary"
+            variant="raised"
+            disabled={this.state.buttonDisabled}
+          >
+            提交申请材料
+          </Button>
+        )}
         <Dialog
           fullWidth
           open={this.state.open}
