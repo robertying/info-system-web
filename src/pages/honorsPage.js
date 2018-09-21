@@ -136,7 +136,9 @@ class HonorsPage extends React.Component {
     deleteDialogOpen: false,
     applications: [],
     confirmDialogOpen: false,
-    willConfirmHonorIndex: 0
+    willConfirmHonorIndex: 0,
+    cancelConfirmDialogOpen: false,
+    willCancelConfirmHonorIndex: 0
   };
 
   componentDidMount = () => {
@@ -200,6 +202,7 @@ class HonorsPage extends React.Component {
           }
         })
         .then(res => {
+          res = res.filter(n => Object.keys(n.honor.status).length !== 0);
           this.setState({ applications: res });
         });
     }
@@ -294,6 +297,11 @@ class HonorsPage extends React.Component {
     this.setState({ confirmDialogOpen: true });
   };
 
+  handleCancelConfirmDialogOpen = index => {
+    this.setState({ willCancelConfirmHonorIndex: index });
+    this.setState({ cancelConfirmDialogOpen: true });
+  };
+
   handleConfirmDialogClose = choice => {
     if (choice === "no") {
       this.setState({ confirmDialogOpen: false });
@@ -363,6 +371,86 @@ class HonorsPage extends React.Component {
             this.setState({ status });
             this.setState({ confirmDialogOpen: false });
             this.props.handleSnackbarPopup("申请状态已更新");
+          } else {
+            this.props.handleSnackbarPopup("操作失败，请重试");
+          }
+        });
+      }
+    }
+  };
+
+  handleCancelConfirmDialogClose = choice => {
+    if (choice === "no") {
+      this.setState({ cancelConfirmDialogOpen: false });
+    } else if (choice === "yes") {
+      const title = this.state.honors[this.state.willCancelConfirmHonorIndex]
+        .title;
+
+      if (this.state.applicationId == null || this.state.applicationId === "") {
+        fetch(`/applications?applicantId=${auth.getId()}`, {
+          method: "GET"
+        })
+          .then(res => {
+            if (res.ok) {
+              return res.json();
+            }
+          })
+          .then(res => {
+            if (res && res[0]) {
+              const id = res[0].id;
+
+              fetch("/applications/" + id, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  honor: {
+                    status: {
+                      [title]: null
+                    }
+                  }
+                })
+              }).then(res => {
+                if (res.status === 204) {
+                  let status = this.state.status;
+                  delete status[
+                    this.state.honors[this.state.willCancelConfirmHonorIndex]
+                      .title
+                  ];
+                  this.setState({ status });
+                  this.setState({ cancelConfirmDialogOpen: false });
+                  this.props.handleSnackbarPopup("申请已撤销");
+                } else {
+                  this.props.handleSnackbarPopup("操作失败，请重试");
+                }
+              });
+            } else {
+              this.props.handleSnackbarPopup("您还未申请该荣誉");
+            }
+          });
+      } else {
+        fetch("/applications/" + this.state.applicationId, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            honor: {
+              status: {
+                [title]: null
+              }
+            }
+          })
+        }).then(res => {
+          if (res.status === 204) {
+            let status = this.state.status;
+            delete status[
+              this.state.honors[this.state.willCancelConfirmHonorIndex].title
+            ];
+            this.setState({ status });
+            this.setState({ cancelConfirmDialogOpen: false });
+            this.props.handleSnackbarPopup("申请已撤销");
           } else {
             this.props.handleSnackbarPopup("操作失败，请重试");
           }
@@ -456,6 +544,19 @@ class HonorsPage extends React.Component {
                 content="是否要申请该荣誉？"
                 open={this.state.confirmDialogOpen}
                 handleClose={this.handleConfirmDialogClose}
+              />
+              <AlertDialog
+                hasCancel
+                title={
+                  this.state.honors[this.state.willCancelConfirmHonorIndex] ===
+                  undefined
+                    ? ""
+                    : this.state.honors[this.state.willCancelConfirmHonorIndex]
+                        .title
+                }
+                content="是否要撤销该荣誉申请？"
+                open={this.state.cancelConfirmDialogOpen}
+                handleClose={this.handleCancelConfirmDialogClose}
               />
             </div>
           </div>
@@ -564,6 +665,27 @@ class HonorsPage extends React.Component {
                               >
                                 申请
                               </Button>
+                              <Button
+                                color="secondary"
+                                onClick={() =>
+                                  this.handleCancelConfirmDialogOpen(index)
+                                }
+                                disabled={
+                                  auth.getRole() === "reviewer" ||
+                                  auth.getRole() === "teacher" ||
+                                  (auth.getRole() === "student" &&
+                                    auth.getClass()[1] === "8")
+                                    ? true
+                                    : this.state.event.activeStep === 0 &&
+                                      (status &&
+                                        status[n.title] !== "" &&
+                                        status[n.title] != null)
+                                      ? false
+                                      : true
+                                }
+                              >
+                                撤销
+                              </Button>
                             </TableCell>
                           </TableRow>
                         );
@@ -648,8 +770,9 @@ class HonorsPage extends React.Component {
                                 .toString()
                                 .includes(this.state.applicantId.toString()) &&
                               (this.state.comprehensiveHonor
-                                ? n.honor.status["综合优秀奖"] === "申请中" ||
-                                  n.honor.status["综合优秀奖"] === "已获得"
+                                ? n.honor.status &&
+                                  (n.honor.status["综合优秀奖"] === "申请中" ||
+                                    n.honor.status["综合优秀奖"] === "已获得")
                                 : true)
                             );
                           })
