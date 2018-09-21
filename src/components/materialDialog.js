@@ -22,9 +22,8 @@ const fetch = auth.authedFetch;
 
 const styles = theme => ({
   button: {
-    margin: theme.spacing.unit * 3,
-    marginLeft: 0,
-    marginBottom: 10
+    margin: theme.spacing.unit,
+    marginLeft: 0
   },
   input: {
     display: "none"
@@ -338,7 +337,6 @@ class MatrialDialog extends React.Component {
         <Button
           className={classes.button}
           onClick={this.handleClickOpen}
-          variant="raised"
           color="primary"
           disabled={this.state.buttonDisabled}
         >
