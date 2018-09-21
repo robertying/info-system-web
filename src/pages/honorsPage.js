@@ -503,13 +503,7 @@ class HonorsPage extends React.Component {
                       </div>
                       <MaterialDialog
                         id={this.state.applicationId}
-                        buttonDisabled={
-                          this.state.contents
-                            ? this.state.contents.reason
-                              ? true
-                              : false
-                            : false
-                        }
+                        buttonDisabled={!(this.state.event.activeStep === 0)}
                         readOnly={false}
                         handleDialogClose={this.handleMaterialDialogClose}
                         handleSnackbarPopup={this.handleSnackbarPopup}
