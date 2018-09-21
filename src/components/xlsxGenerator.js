@@ -156,7 +156,6 @@ class XLSXGenerator extends React.Component {
                   ]
                 : null;
           applications.unshift(head);
-          console.log(applications);
 
           const worksheet = XLSX.utils.aoa_to_sheet(applications);
           let workbook = XLSX.utils.book_new();
