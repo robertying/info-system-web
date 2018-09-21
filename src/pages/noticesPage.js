@@ -201,7 +201,7 @@ class NoticesPage extends React.Component {
                           className={classes.title}
                           color="textSecondary"
                         >
-                          {formatDate(Date(notice.createdAt))}
+                          {formatDate(new Date(notice.createdAt))}
                         </Typography>
                         <div>
                           {/* <EditButton
