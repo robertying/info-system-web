@@ -354,7 +354,8 @@ class MatrialDialog extends React.Component {
           <DialogContent>
             {this.state.readOnly ? null : (
               <DialogContentText>
-                申请材料提交后无法修改和补充，请确保材料完整后提交。（注意：上传附件可以多选）
+                申请材料需体现申请人在德育、智育、体育、社会工作、科技学术活动及文体特长等方面的基本情况（计划申请助学金的同学需填写家庭经济状况），并着重说明申请相关荣誉的理由。（注意：申请理由不得超过
+                500 字；上传附件可以多选）
               </DialogContentText>
             )}
             <TextField
