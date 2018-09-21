@@ -106,6 +106,10 @@ const styles = theme => ({
     flexWrap: "wrap",
     padding: theme.spacing.unit / 2
   },
+  attachmentIcon: {
+    marginTop: 12,
+    marginLeft: 6
+  },
   cell: {
     whiteSpace: "nowrap",
     maxWidth: 40
@@ -480,7 +484,7 @@ class HonorsPage extends React.Component {
                     <div>
                       <div className={classes.flex}>
                         {this.state.attachments.length !== 0 ? (
-                          <AttachmentIcon />
+                          <AttachmentIcon className={classes.attachmentIcon} />
                         ) : (
                           <Typography component="p" className={classes.margin}>
                             无附件
