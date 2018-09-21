@@ -202,7 +202,7 @@ class HonorsPage extends React.Component {
           }
         })
         .then(res => {
-          res = res.filter(n => Object.keys(n.honor.status).length !== 0);
+          res = res.filter(n => n.honor.status && Object.keys(n.honor.status).length !== 0);
           this.setState({ applications: res });
         });
     }
