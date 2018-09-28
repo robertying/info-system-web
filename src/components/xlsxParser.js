@@ -117,14 +117,15 @@ class XLSXParser extends React.Component {
           let status = {};
           if (this.props.type !== "honor") {
             for (let index = 4; index < n.length; index = index + 2) {
-              const title = n[index];
+              const title = n[index].trim();
               const amount = n[index + 1];
               status[title] = amount;
             }
           } else {
             for (let index = 4; index < n.length; index++) {
               if (n[index] !== "") {
-                status[this.head[index - 4]] = n[index];
+                const title = this.head[index - 4].trim()
+                status[title] = n[index].trim();
               }
             }
           }
