@@ -496,13 +496,19 @@ class ScholarshipsPage extends React.Component {
                 <div className={classes.chips}>
                   <Chip
                     className={classes.chip}
+                    variant="outlined"
                     color="default"
                     label="未提交"
                   />
                   <Chip
                     className={classes.chip}
+                    color="default"
+                    label="已提交"
+                  />
+                  <Chip
+                    className={classes.chip}
                     color="primary"
-                    label="已提交 / 已通过"
+                    label="已通过"
                   />
                   <Chip
                     className={classes.chip}
@@ -522,9 +528,6 @@ class ScholarshipsPage extends React.Component {
                             奖学金总额
                           </TableCell>
                           <TableCell>获奖状态</TableCell>
-                          <TableCell className={classes.cell}>
-                            其他材料
-                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -555,7 +558,6 @@ class ScholarshipsPage extends React.Component {
                           </TableCell>
                           <TableCell className={classes.cell} />
                           <TableCell />
-                          <TableCell className={classes.cell} />
                         </TableRow>
                         {this.state.applications
                           .filter(n => {
@@ -606,16 +608,22 @@ class ScholarshipsPage extends React.Component {
                                               n.scholarship.status[key]
                                             }
                                             className={classes.chip}
+                                            variant={
+                                              n.scholarship.contents &&
+                                              n.scholarship.contents[key]
+                                                ? "default"
+                                                : "outlined"
+                                            }
                                             color={
                                               n.scholarship.contents &&
                                               n.scholarship.contents[key]
                                                 ? n.scholarship.contents[key]
-                                                    .status === "已提交"
+                                                    .status === "已通过"
                                                   ? "primary"
                                                   : n.scholarship.contents[key]
                                                       .status === "未通过"
                                                     ? "secondary"
-                                                    : "primary"
+                                                    : "default"
                                                 : "default"
                                             }
                                           />
@@ -623,9 +631,6 @@ class ScholarshipsPage extends React.Component {
                                       }
                                     )}
                                   </div>
-                                </TableCell>
-                                <TableCell className={classes.cell}>
-                                  - -
                                 </TableCell>
                               </TableRow>
                             );
