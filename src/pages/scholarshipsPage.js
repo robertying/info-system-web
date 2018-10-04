@@ -14,6 +14,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableHead from "@material-ui/core/TableHead";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Input from "@material-ui/core/Input";
@@ -23,9 +24,11 @@ import EventProgressSteper from "../components/progressStepper";
 import EventDialog from "../components/eventDialog";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AlertDialog from "../components/alertDialog";
+import ThankLetterDialog from "../components/thankLetterDialog";
 import XlsxParser from "../components/xlsxParser";
-import { download } from "../helpers/file";
+import { upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
+import scholarshipConfig from "../config/scholarships";
 
 const fetch = auth.authedFetch;
 
@@ -46,6 +49,9 @@ const styles = theme => ({
     marginRight: "auto"
   },
   tables: {},
+  input: {
+    display: "none"
+  },
   button: {
     margin: theme.spacing.unit * 3,
     marginLeft: 10,
@@ -117,7 +123,11 @@ class ScholarshipsPage extends React.Component {
     deleteDialogOpen: false,
     applications: [],
     confirmDialogOpen: false,
-    willConfirmHonorIndex: 0
+    willConfirmHonorIndex: 0,
+    files: [],
+    thankLetterDialogOpen: false,
+    salutation: "",
+    content: ""
   };
 
   componentDidMount = () => {
@@ -183,6 +193,59 @@ class ScholarshipsPage extends React.Component {
 
   handleNewEventDialogClose = body => {
     this.setState({ event: body });
+  };
+
+  handleUpload = title => {
+    this.setState({ selectedScholarship: title });
+  };
+
+  handleFileChange = e => {
+    const files = [];
+    const array = Array.from(e.target.files);
+    array.map(file => {
+      return files.push({
+        key: array.indexOf(file),
+        data: file
+      });
+    });
+
+    if (files.length === 0) {
+      this.handleSnackbarPopup("请选择上传文件");
+    } else {
+      // 有附件
+      let attachments = [];
+      Promise.all(
+        files.map(file => {
+          return new Promise(res =>
+            upload(false, file.data).then(filename => {
+              attachments.push(filename);
+              res(attachments);
+            })
+          );
+        })
+      ).then(res => {
+        return fetch(`/applications/${this.state.applicationId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            scholarship: {
+              attachments: {
+                ...this.state.attachments,
+                [this.state.selectedScholarship]: attachments
+              }
+            }
+          })
+        }).then(res => {
+          if (res.ok) {
+            this.handleSnackbarPopup("申请表上传成功");
+          } else {
+            this.handleSnackbarPopup("上传失败，请重试");
+          }
+        });
+      });
+    }
   };
 
   handleEventUpdate = activeStep => {
@@ -388,7 +451,37 @@ class ScholarshipsPage extends React.Component {
                           <TableRow key={index}>
                             <TableCell>{n}</TableCell>
                             <TableCell>{status[n]}</TableCell>
-                            <TableCell>- -</TableCell>
+                            <TableCell>
+                              <ThankLetterDialog
+                                id={this.state.applicationId}
+                                title={n}
+                                readOnly={auth.getRole() !== "student"}
+                                handleSnackbarPopup={this.handleSnackbarPopup}
+                              />
+                              <input
+                                disabled={scholarshipConfig.formRequired.every(
+                                  x => !n.includes(x)
+                                )}
+                                className={classes.input}
+                                id="contained-button-file"
+                                multiple
+                                type="file"
+                                name="file"
+                                onChange={this.handleFileChange}
+                              />
+                              <label htmlFor="contained-button-file">
+                                <Button
+                                  disabled={scholarshipConfig.formRequired.every(
+                                    x => !n.includes(x)
+                                  )}
+                                  color="primary"
+                                  component="span"
+                                  onClick={() => this.handleUpload(n)}
+                                >
+                                  申请表
+                                </Button>
+                              </label>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
