@@ -400,6 +400,23 @@ class ScholarshipsPage extends React.Component {
             {auth.getRole() === "reviewer" ? (
               <div>
                 <WithAuthXlsxParser />
+                <div className={classes.chips}>
+                  <Chip
+                    className={classes.chip}
+                    color="default"
+                    label="未提交"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="primary"
+                    label="已提交 / 已通过"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="secondary"
+                    label="未通过"
+                  />
+                </div>
                 <Paper className={classes.paper}>
                   <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
@@ -496,7 +513,18 @@ class ScholarshipsPage extends React.Component {
                                               n.scholarship.status[key]
                                             }
                                             className={classes.chip}
-                                            color="primary"
+                                            color={
+                                              n.scholarship.contents &&
+                                              n.scholarship.contents[key]
+                                                ? n.scholarship.contents[key]
+                                                    .status === "已提交"
+                                                  ? "primary"
+                                                  : n.scholarship.contents[key]
+                                                      .status === "未通过"
+                                                    ? "secondary"
+                                                    : "primary"
+                                                : "default"
+                                            }
                                           />
                                         );
                                       }

@@ -202,7 +202,9 @@ class HonorsPage extends React.Component {
           }
         })
         .then(res => {
-          res = res.filter(n => n.honor.status && Object.keys(n.honor.status).length !== 0);
+          res = res.filter(
+            n => n.honor.status && Object.keys(n.honor.status).length !== 0
+          );
           this.setState({ applications: res });
         });
     }
@@ -700,6 +702,23 @@ class HonorsPage extends React.Component {
                 <div className={classes.simpleFlex}>
                   <WithAuthXlsxGenerator />
                   <WithAuthXlsxParser />
+                </div>
+                <div className={classes.chips}>
+                  <Chip
+                    className={classes.chip}
+                    color="default"
+                    label="申请中"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="primary"
+                    label="已通过"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="secondary"
+                    label="未通过"
+                  />
                 </div>
                 <Paper className={classes.paper}>
                   <div className={classes.tableWrapper}>
