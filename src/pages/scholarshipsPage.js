@@ -24,7 +24,7 @@ import EventProgressSteper from "../components/progressStepper";
 import EventDialog from "../components/eventDialog";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AlertDialog from "../components/alertDialog";
-import ThankLetterDialog from "../components/thankLetterDialog";
+import ThankLetterDialogForScholarships from "../components/thankLetterDialogForScholarships";
 import XlsxParser from "../components/xlsxParser";
 import { upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
@@ -100,6 +100,9 @@ const styles = theme => ({
   cell: {
     whiteSpace: "nowrap",
     maxWidth: 40
+  },
+  unclickable: {
+    pointerEvents: "none"
   }
 });
 
@@ -291,12 +294,16 @@ class ScholarshipsPage extends React.Component {
     this.setState({ status });
   };
 
-  handleMaterialDialogClose = material => {
-    this.setState({ contents: material.honor.contents });
-    this.setState({ attachments: material.honor.attachments });
+  handlePassDialogClose = (id, title, status) => {
+    let applications = this.state.applications;
+    for (let index = 0; index < applications.length; index++) {
+      const application = applications[index];
+      if (application.id === id) {
+        applications[index].scholarship.contents[title].status = status;
+      }
+    }
+    this.setState({ applications });
   };
-
-  handleReadOnlyMaterialDialogClose = () => {};
 
   handleDeleteDialogClose = choice => {
     if (choice === "no") {
@@ -318,43 +325,6 @@ class ScholarshipsPage extends React.Component {
 
   handleDeleteDialogOpen = index => {
     this.setState({ deleteDialogOpen: true });
-  };
-
-  handleConfirmDialogOpen = index => {
-    this.setState({ willConfirmHonorIndex: index });
-    this.setState({ confirmDialogOpen: true });
-  };
-
-  handleConfirmDialogClose = choice => {
-    if (choice === "no") {
-      this.setState({ confirmDialogOpen: false });
-    } else if (choice === "yes") {
-      const title = this.state.honors[this.state.willConfirmHonorIndex].title;
-      fetch("/applications/" + this.state.applicationId, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          honor: {
-            status: {
-              [title]: "申请中"
-            }
-          }
-        })
-      }).then(res => {
-        if (res.status === 204) {
-          let status = this.state.status;
-          status[this.state.honors[this.state.willConfirmHonorIndex].title] =
-            "申请中";
-          this.setState({ status });
-          this.setState({ confirmDialogOpen: false });
-          this.props.handleSnackbarPopup("申请状态已更新");
-        } else {
-          this.props.handleSnackbarPopup("操作失败，请重试");
-        }
-      });
-    }
   };
 
   render() {
@@ -452,35 +422,41 @@ class ScholarshipsPage extends React.Component {
                             <TableCell>{n}</TableCell>
                             <TableCell>{status[n]}</TableCell>
                             <TableCell>
-                              <ThankLetterDialog
+                              <ThankLetterDialogForScholarships
                                 id={this.state.applicationId}
                                 title={n}
                                 readOnly={auth.getRole() !== "student"}
                                 handleSnackbarPopup={this.handleSnackbarPopup}
                               />
-                              <input
-                                disabled={scholarshipConfig.formRequired.every(
-                                  x => !n.includes(x)
-                                )}
-                                className={classes.input}
-                                id="contained-button-file"
-                                multiple
-                                type="file"
-                                name="file"
-                                onChange={this.handleFileChange}
-                              />
-                              <label htmlFor="contained-button-file">
-                                <Button
-                                  disabled={scholarshipConfig.formRequired.every(
+                              <div
+                                className={
+                                  scholarshipConfig.formRequired.every(
                                     x => !n.includes(x)
-                                  )}
-                                  color="primary"
-                                  component="span"
-                                  onClick={() => this.handleUpload(n)}
-                                >
-                                  申请表
-                                </Button>
-                              </label>
+                                  )
+                                    ? classes.unclickable
+                                    : null
+                                }
+                              >
+                                <input
+                                  className={classes.input}
+                                  id="contained-button-file"
+                                  type="file"
+                                  name="file"
+                                  onChange={this.handleFileChange}
+                                />
+                                <label htmlFor="contained-button-file">
+                                  <Button
+                                    disabled={scholarshipConfig.formRequired.every(
+                                      x => !n.includes(x)
+                                    )}
+                                    color="primary"
+                                    component="span"
+                                    onClick={() => this.handleUpload(n)}
+                                  >
+                                    申请表
+                                  </Button>
+                                </label>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -600,14 +576,22 @@ class ScholarshipsPage extends React.Component {
                                     {Object.keys(n.scholarship.status).map(
                                       (key, index) => {
                                         return (
-                                          <Chip
+                                          <ThankLetterDialogForScholarships
+                                            handleSnackbarPopup={
+                                              this.handleSnackbarPopup
+                                            }
+                                            handleDialogClose={
+                                              this.handlePassDialogClose
+                                            }
+                                            readOnly
+                                            id={n.id}
+                                            title={key}
                                             key={index}
                                             label={
                                               key +
                                               "：" +
                                               n.scholarship.status[key]
                                             }
-                                            className={classes.chip}
                                             variant={
                                               n.scholarship.contents &&
                                               n.scholarship.contents[key]

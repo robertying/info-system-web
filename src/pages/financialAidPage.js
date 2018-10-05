@@ -14,6 +14,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableHead from "@material-ui/core/TableHead";
 import Paper from "@material-ui/core/Paper";
 import Chip from "@material-ui/core/Chip";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import Input from "@material-ui/core/Input";
@@ -23,9 +24,11 @@ import EventProgressSteper from "../components/progressStepper";
 import EventDialog from "../components/eventDialog";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AlertDialog from "../components/alertDialog";
+import ThankLetterDialogForFinancialAids from "../components/thankLetterDialogForFinancialAids";
 import XlsxParser from "../components/xlsxParser";
-import { download } from "../helpers/file";
+import { upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
+import scholarshipConfig from "../config/scholarships";
 
 const fetch = auth.authedFetch;
 
@@ -44,6 +47,9 @@ const styles = theme => ({
     width: "85vw",
     marginLeft: "auto",
     marginRight: "auto"
+  },
+  input: {
+    display: "none"
   },
   tables: {},
   button: {
@@ -94,6 +100,9 @@ const styles = theme => ({
   cell: {
     whiteSpace: "nowrap",
     maxWidth: 40
+  },
+  unclickable: {
+    pointerEvents: "none"
   }
 });
 
@@ -117,7 +126,11 @@ class FinancialAidPage extends React.Component {
     deleteDialogOpen: false,
     applications: [],
     confirmDialogOpen: false,
-    willConfirmHonorIndex: 0
+    willConfirmHonorIndex: 0,
+    files: [],
+    thankLetterDialogOpen: false,
+    salutation: "",
+    content: ""
   };
 
   componentDidMount = () => {
@@ -185,6 +198,59 @@ class FinancialAidPage extends React.Component {
     this.setState({ event: body });
   };
 
+  handleUpload = title => {
+    this.setState({ selectedFinancialAid: title });
+  };
+
+  handleFileChange = e => {
+    const files = [];
+    const array = Array.from(e.target.files);
+    array.map(file => {
+      return files.push({
+        key: array.indexOf(file),
+        data: file
+      });
+    });
+
+    if (files.length === 0) {
+      this.handleSnackbarPopup("请选择上传文件");
+    } else {
+      // 有附件
+      let attachments = [];
+      Promise.all(
+        files.map(file => {
+          return new Promise(res =>
+            upload(false, file.data).then(filename => {
+              attachments.push(filename);
+              res(attachments);
+            })
+          );
+        })
+      ).then(res => {
+        return fetch(`/applications/${this.state.applicationId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            financialAid: {
+              attachments: {
+                ...this.state.attachments,
+                [this.state.selectedFinancialAid]: attachments
+              }
+            }
+          })
+        }).then(res => {
+          if (res.ok) {
+            this.handleSnackbarPopup("申请表上传成功");
+          } else {
+            this.handleSnackbarPopup("上传失败，请重试");
+          }
+        });
+      });
+    }
+  };
+
   handleEventUpdate = activeStep => {
     fetch("/events/" + this.state.event.id, {
       method: "PUT",
@@ -228,12 +294,16 @@ class FinancialAidPage extends React.Component {
     this.setState({ status });
   };
 
-  handleMaterialDialogClose = material => {
-    this.setState({ contents: material.honor.contents });
-    this.setState({ attachments: material.honor.attachments });
+  handlePassDialogClose = (id, title, status) => {
+    let applications = this.state.applications;
+    for (let index = 0; index < applications.length; index++) {
+      const application = applications[index];
+      if (application.id === id) {
+        applications[index].financialAid.contents[title].status = status;
+      }
+    }
+    this.setState({ applications });
   };
-
-  handleReadOnlyMaterialDialogClose = () => {};
 
   handleDeleteDialogClose = choice => {
     if (choice === "no") {
@@ -255,43 +325,6 @@ class FinancialAidPage extends React.Component {
 
   handleDeleteDialogOpen = index => {
     this.setState({ deleteDialogOpen: true });
-  };
-
-  handleConfirmDialogOpen = index => {
-    this.setState({ willConfirmHonorIndex: index });
-    this.setState({ confirmDialogOpen: true });
-  };
-
-  handleConfirmDialogClose = choice => {
-    if (choice === "no") {
-      this.setState({ confirmDialogOpen: false });
-    } else if (choice === "yes") {
-      const title = this.state.honors[this.state.willConfirmHonorIndex].title;
-      fetch("/applications/" + this.state.applicationId, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          honor: {
-            status: {
-              [title]: "申请中"
-            }
-          }
-        })
-      }).then(res => {
-        if (res.status === 204) {
-          let status = this.state.status;
-          status[this.state.honors[this.state.willConfirmHonorIndex].title] =
-            "申请中";
-          this.setState({ status });
-          this.setState({ confirmDialogOpen: false });
-          this.props.handleSnackbarPopup("申请状态已更新");
-        } else {
-          this.props.handleSnackbarPopup("操作失败，请重试");
-        }
-      });
-    }
   };
 
   render() {
@@ -388,7 +421,43 @@ class FinancialAidPage extends React.Component {
                           <TableRow key={index}>
                             <TableCell>{n}</TableCell>
                             <TableCell>{status[n]}</TableCell>
-                            <TableCell>- -</TableCell>
+                            <TableCell>
+                              <ThankLetterDialogForFinancialAids
+                                id={this.state.applicationId}
+                                title={n}
+                                readOnly={auth.getRole() !== "student"}
+                                handleSnackbarPopup={this.handleSnackbarPopup}
+                              />
+                              <div
+                                className={
+                                  scholarshipConfig.formRequired.every(
+                                    x => !n.includes(x)
+                                  )
+                                    ? classes.unclickable
+                                    : null
+                                }
+                              >
+                                <input
+                                  className={classes.input}
+                                  id="contained-button-file"
+                                  type="file"
+                                  name="file"
+                                  onChange={this.handleFileChange}
+                                />
+                                <label htmlFor="contained-button-file">
+                                  <Button
+                                    disabled={scholarshipConfig.formRequired.every(
+                                      x => !n.includes(x)
+                                    )}
+                                    color="primary"
+                                    component="span"
+                                    onClick={() => this.handleUpload(n)}
+                                  >
+                                    申请表
+                                  </Button>
+                                </label>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -400,6 +469,29 @@ class FinancialAidPage extends React.Component {
             {auth.getRole() === "reviewer" ? (
               <div>
                 <WithAuthXlsxParser />
+                <div className={classes.chips}>
+                  <Chip
+                    className={classes.chip}
+                    variant="outlined"
+                    color="default"
+                    label="未提交"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="default"
+                    label="已提交"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="primary"
+                    label="已通过"
+                  />
+                  <Chip
+                    className={classes.chip}
+                    color="secondary"
+                    label="未通过"
+                  />
+                </div>
                 <Paper className={classes.paper}>
                   <div className={classes.tableWrapper}>
                     <Table className={classes.table}>
@@ -412,9 +504,6 @@ class FinancialAidPage extends React.Component {
                             助学金总额
                           </TableCell>
                           <TableCell>资助状态</TableCell>
-                          <TableCell className={classes.cell}>
-                            其他材料
-                          </TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -445,7 +534,6 @@ class FinancialAidPage extends React.Component {
                           </TableCell>
                           <TableCell className={classes.cell} />
                           <TableCell />
-                          <TableCell className={classes.cell} />
                         </TableRow>
                         {this.state.applications
                           .filter(n => {
@@ -488,23 +576,45 @@ class FinancialAidPage extends React.Component {
                                     {Object.keys(n.financialAid.status).map(
                                       (key, index) => {
                                         return (
-                                          <Chip
+                                          <ThankLetterDialogForFinancialAids
+                                            handleSnackbarPopup={
+                                              this.handleSnackbarPopup
+                                            }
+                                            handleDialogClose={
+                                              this.handlePassDialogClose
+                                            }
+                                            readOnly
+                                            id={n.id}
+                                            title={key}
                                             key={index}
                                             label={
                                               key +
                                               "：" +
                                               n.financialAid.status[key]
                                             }
-                                            className={classes.chip}
-                                            color="primary"
+                                            variant={
+                                              n.financialAid.contents &&
+                                              n.financialAid.contents[key]
+                                                ? "default"
+                                                : "outlined"
+                                            }
+                                            color={
+                                              n.financialAid.contents &&
+                                              n.financialAid.contents[key]
+                                                ? n.financialAid.contents[key]
+                                                    .status === "已通过"
+                                                  ? "primary"
+                                                  : n.financialAid.contents[key]
+                                                      .status === "未通过"
+                                                    ? "secondary"
+                                                    : "default"
+                                                : "default"
+                                            }
                                           />
                                         );
                                       }
                                     )}
                                   </div>
-                                </TableCell>
-                                <TableCell className={classes.cell}>
-                                  - -
                                 </TableCell>
                               </TableRow>
                             );
