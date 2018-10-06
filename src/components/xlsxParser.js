@@ -78,6 +78,7 @@ class XLSXParser extends React.Component {
 
         const firstWorksheet = workbook.Sheets[workbook.SheetNames[0]];
         data = XLSX.utils.sheet_to_json(firstWorksheet, { header: 1 });
+        data = data.filter(x => x.length !== 0);
 
         // 校验文件
         let flag = false;
@@ -85,13 +86,6 @@ class XLSXParser extends React.Component {
         if (this.props.type !== "honor") {
           data.forEach((n, index) => {
             if (n.length % 2) {
-              this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
-              flag = true;
-            }
-          });
-        } else {
-          data.forEach((n, index) => {
-            if (n.length !== 14) {
               this.handleSnackbarPopup(`格式错误：第 ${index + 2} 行`);
               flag = true;
             }
@@ -104,7 +98,7 @@ class XLSXParser extends React.Component {
 
         // 开始上传
         this.handleSnackbarPopup("开始上传");
-        this.setState({ progressType: "static" });
+        this.setState({ progressType: "indeterminate" });
         const total = data.length;
         let count = 0;
         flag = false;
@@ -123,8 +117,9 @@ class XLSXParser extends React.Component {
             }
           } else {
             for (let index = 4; index < n.length; index++) {
+              n[index] = n[index] || "";
               if (n[index] !== "") {
-                const title = this.head[index - 4].trim()
+                const title = this.head[index - 4].trim();
                 status[title] = n[index].trim();
               }
             }
@@ -175,6 +170,9 @@ class XLSXParser extends React.Component {
                   )
                 }).then(res => {
                   if (res.status === 204) {
+                    if (count === 0) {
+                      this.setState({ progressType: "static" });
+                    }
                     count++;
                     this.setState({ completed: (count / total) * 100 });
                     if (count === total) {
