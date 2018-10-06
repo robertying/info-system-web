@@ -178,6 +178,8 @@ class XLSXParser extends React.Component {
                     if (count === total) {
                       this.handleSnackbarPopup("上传完成");
                       this.setState({ progressHidden: true });
+
+                      setTimeout(() => window.location.reload(), 1000);
                     }
                   } else {
                     this.handleSnackbarPopup("上传失败，请重试");
@@ -226,6 +228,8 @@ class XLSXParser extends React.Component {
                     if (count === total) {
                       this.handleSnackbarPopup("上传完成");
                       this.setState({ progressHidden: true });
+
+                      setTimeout(() => window.location.reload(), 1000);
                     }
                   } else {
                     this.handleSnackbarPopup("上传失败，请重试");
