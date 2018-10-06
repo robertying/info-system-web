@@ -29,6 +29,7 @@ import XlsxParser from "../components/xlsxParser";
 import { upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
 import scholarshipConfig from "../config/scholarships";
+import fileSaver from "file-saver";
 
 const fetch = auth.authedFetch;
 
@@ -103,6 +104,13 @@ const styles = theme => ({
   },
   unclickable: {
     pointerEvents: "none"
+  },
+  simpleFlex: {
+    display: "flex"
+  },
+  downloadButton: {
+    height: 14,
+    marginTop: 24
   }
 });
 
@@ -468,7 +476,28 @@ class ScholarshipsPage extends React.Component {
             )}
             {auth.getRole() === "reviewer" ? (
               <div>
-                <WithAuthXlsxParser />
+                <div className={classes.simpleFlex}>
+                  <WithAuthXlsxParser />
+                  <Button
+                    className={classes.downloadButton}
+                    variant="raised"
+                    color="primary"
+                    onClick={() => {
+                      fetch(`/thank-letters?grade=${auth.getGrade()}`, {
+                        method: "GET"
+                      })
+                        .then(res => res.blob())
+                        .then(blob =>
+                          fileSaver.saveAs(
+                            blob,
+                            `感谢信-无${auth.getGrade()}.zip`
+                          )
+                        );
+                    }}
+                  >
+                    下载感谢信
+                  </Button>
+                </div>
                 <div className={classes.chips}>
                   <Chip
                     className={classes.chip}
