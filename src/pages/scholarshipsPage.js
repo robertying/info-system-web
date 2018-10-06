@@ -26,7 +26,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AlertDialog from "../components/alertDialog";
 import ThankLetterDialogForScholarships from "../components/thankLetterDialogForScholarships";
 import XlsxParser from "../components/xlsxParser";
-import { upload, download } from "../helpers/file";
+import { trimFilename, upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
 import scholarshipConfig from "../config/scholarships";
 import fileSaver from "file-saver";
@@ -89,8 +89,7 @@ const styles = theme => ({
     marginLeft: 8
   },
   chip: {
-    margin: theme.spacing.unit / 2,
-    marginLeft: 0
+    marginLeft: theme.spacing.unit * 2
   },
   chips: {
     display: "flex",
@@ -251,6 +250,17 @@ class ScholarshipsPage extends React.Component {
         }).then(res => {
           if (res.ok) {
             this.handleSnackbarPopup("申请表上传成功");
+
+            fetch(`/applications/${this.state.applicationId}`, {
+              method: "GET"
+            })
+              .then(res => res.json())
+              .then(res => {
+                let attachments = this.state.attachments;
+                attachments[this.state.selectedScholarship] =
+                  res.scholarship.attachments[this.state.selectedScholarship];
+                this.setState({ attachments });
+              });
           } else {
             this.handleSnackbarPopup("上传失败，请重试");
           }
@@ -436,34 +446,58 @@ class ScholarshipsPage extends React.Component {
                                 readOnly={auth.getRole() !== "student"}
                                 handleSnackbarPopup={this.handleSnackbarPopup}
                               />
-                              <div
-                                className={
-                                  scholarshipConfig.formRequired.every(
-                                    x => !n.includes(x)
-                                  )
-                                    ? classes.unclickable
-                                    : null
-                                }
-                              >
-                                <input
-                                  className={classes.input}
-                                  id="contained-button-file"
-                                  type="file"
-                                  name="file"
-                                  onChange={this.handleFileChange}
-                                />
-                                <label htmlFor="contained-button-file">
-                                  <Button
-                                    disabled={scholarshipConfig.formRequired.every(
+                              <div className={classes.simpleFlex}>
+                                <div
+                                  className={
+                                    scholarshipConfig.formRequired.every(
                                       x => !n.includes(x)
-                                    )}
-                                    color="primary"
-                                    component="span"
-                                    onClick={() => this.handleUpload(n)}
-                                  >
-                                    申请表
-                                  </Button>
-                                </label>
+                                    )
+                                      ? classes.unclickable
+                                      : null
+                                  }
+                                >
+                                  <input
+                                    className={classes.input}
+                                    id="contained-button-file"
+                                    type="file"
+                                    name="file"
+                                    onChange={this.handleFileChange}
+                                  />
+                                  <label htmlFor="contained-button-file">
+                                    <Button
+                                      disabled={scholarshipConfig.formRequired.every(
+                                        x => !n.includes(x)
+                                      )}
+                                      color="primary"
+                                      component="span"
+                                      onClick={() => this.handleUpload(n)}
+                                    >
+                                      申请表
+                                    </Button>
+                                  </label>
+                                </div>
+                                <div>
+                                  {!scholarshipConfig.formRequired.every(
+                                    x => !n.includes(x)
+                                  ) &&
+                                  (!this.state.attachments[n] ||
+                                    this.state.attachments[n].length === 0)
+                                    ? null
+                                    : (this.state.attachments[n] || []).map(
+                                        (file, index) => {
+                                          return (
+                                            <Chip
+                                              key={index}
+                                              label={trimFilename(file)}
+                                              onClick={e =>
+                                                this.handleChipClick(e, file)
+                                              }
+                                              className={classes.chip}
+                                            />
+                                          );
+                                        }
+                                      )}
+                                </div>
                               </div>
                             </TableCell>
                           </TableRow>
