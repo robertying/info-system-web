@@ -213,7 +213,6 @@ class ThankLetterDialog extends React.Component {
         body: JSON.stringify(body)
       }).then(res => {
         if (res.status === 204) {
-          this.handleClose();
           this.props.handleSnackbarPopup("感谢信已提交");
         } else {
           this.props.handleSnackbarPopup("操作失败，请重试");

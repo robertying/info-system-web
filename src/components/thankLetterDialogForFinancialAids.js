@@ -186,7 +186,6 @@ class ThankLetterDialog extends React.Component {
               body: JSON.stringify(body)
             }).then(res => {
               if (res.status === 204) {
-                this.handleClose();
                 this.props.handleSnackbarPopup("感谢信已提交");
               } else {
                 this.props.handleSnackbarPopup("操作失败，请重试");
@@ -214,7 +213,6 @@ class ThankLetterDialog extends React.Component {
         body: JSON.stringify(body)
       }).then(res => {
         if (res.status === 204) {
-          this.handleClose();
           this.props.handleSnackbarPopup("感谢信已提交");
         } else {
           this.props.handleSnackbarPopup("操作失败，请重试");
@@ -246,7 +244,7 @@ class ThankLetterDialog extends React.Component {
         if (blob) {
           FileSaver.saveAs(blob, "感谢信.pdf");
         } else {
-          this.props.handleSnackbarPopup("预览失败，请检查感谢信内容");
+          this.props.handleSnackbarPopup("请先提交感谢信内容");
         }
       });
   };
