@@ -1,6 +1,6 @@
 {
   "name": "info-system-web",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Web frontend for the Information System of EE, Tsinghua University",
   "author": "Robert Ying <yingrui205@gmail.com>",
   "private": true,
@@ -16,7 +16,6 @@
     "react-infinite-scroller": "latest",
     "react-router-dom": "latest",
     "react-scripts": "latest",
-    "source-map-explorer": "latest",
     "xlsx": "latest"
   },
   "scripts": {
@@ -30,7 +29,8 @@
     "extends": "react-app"
   },
   "devDependencies": {
-    "prettier": "latest"
+    "prettier": "latest",
+    "source-map-explorer": "latest"
   },
   "proxy": "http://localhost:3001/api"
 }
