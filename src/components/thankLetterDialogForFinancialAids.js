@@ -232,9 +232,14 @@ class ThankLetterDialog extends React.Component {
   };
 
   handlePreviewButtonClick = () => {
-    fetch(`/thank-letters?id=${this.state.id}&title=${this.state.title}`, {
-      method: "GET"
-    })
+    fetch(
+      `/thank-letters?id=${this.state.id}&title=${
+        this.state.title
+      }&type=financialAid`,
+      {
+        method: "GET"
+      }
+    )
       .then(res => {
         if (res.ok) {
           return res.blob();

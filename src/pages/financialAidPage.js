@@ -26,9 +26,10 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import AlertDialog from "../components/alertDialog";
 import ThankLetterDialogForFinancialAids from "../components/thankLetterDialogForFinancialAids";
 import XlsxParser from "../components/xlsxParser";
-import { upload, download } from "../helpers/file";
+import { trimFilename, upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
 import scholarshipConfig from "../config/scholarships";
+import fileSaver from "file-saver";
 
 const fetch = auth.authedFetch;
 
@@ -73,6 +74,9 @@ const styles = theme => ({
     width: 75,
     fontSize: 12
   },
+  chip: {
+    marginLeft: theme.spacing.unit * 2
+  },
   text: {
     margin: theme.spacing.unit * 2
   },
@@ -103,6 +107,14 @@ const styles = theme => ({
   },
   unclickable: {
     pointerEvents: "none"
+  },
+  simpleFlex: {
+    display: "flex"
+  },
+  downloadButton: {
+    height: 14,
+    marginTop: 24,
+    marginLeft: theme.spacing.unit
   }
 });
 
@@ -243,6 +255,17 @@ class FinancialAidPage extends React.Component {
         }).then(res => {
           if (res.ok) {
             this.handleSnackbarPopup("申请表上传成功");
+
+            fetch(`/applications/${this.state.applicationId}`, {
+              method: "GET"
+            })
+              .then(res => res.json())
+              .then(res => {
+                let attachments = this.state.attachments;
+                attachments[this.state.selectedFinancialAid] =
+                  res.financialAid.attachments[this.state.selectedFinancialAid];
+                this.setState({ attachments });
+              });
           } else {
             this.handleSnackbarPopup("上传失败，请重试");
           }
@@ -428,34 +451,58 @@ class FinancialAidPage extends React.Component {
                                 readOnly={auth.getRole() !== "student"}
                                 handleSnackbarPopup={this.handleSnackbarPopup}
                               />
-                              <div
-                                className={
-                                  scholarshipConfig.formRequired.every(
-                                    x => !n.includes(x)
-                                  )
-                                    ? classes.unclickable
-                                    : null
-                                }
-                              >
-                                <input
-                                  className={classes.input}
-                                  id="contained-button-file"
-                                  type="file"
-                                  name="file"
-                                  onChange={this.handleFileChange}
-                                />
-                                <label htmlFor="contained-button-file">
-                                  <Button
-                                    disabled={scholarshipConfig.formRequired.every(
+                              <div className={classes.simpleFlex}>
+                                <div
+                                  className={
+                                    scholarshipConfig.formRequired.every(
                                       x => !n.includes(x)
-                                    )}
-                                    color="primary"
-                                    component="span"
-                                    onClick={() => this.handleUpload(n)}
-                                  >
-                                    申请表
-                                  </Button>
-                                </label>
+                                    )
+                                      ? classes.unclickable
+                                      : null
+                                  }
+                                >
+                                  <input
+                                    className={classes.input}
+                                    id="contained-button-file"
+                                    type="file"
+                                    name="file"
+                                    onChange={this.handleFileChange}
+                                  />
+                                  <label htmlFor="contained-button-file">
+                                    <Button
+                                      disabled={scholarshipConfig.formRequired.every(
+                                        x => !n.includes(x)
+                                      )}
+                                      color="primary"
+                                      component="span"
+                                      onClick={() => this.handleUpload(n)}
+                                    >
+                                      申请表
+                                    </Button>
+                                  </label>
+                                </div>
+                                <div>
+                                  {!scholarshipConfig.formRequired.every(
+                                    x => !n.includes(x)
+                                  ) &&
+                                  (!this.state.attachments[n] ||
+                                    this.state.attachments[n].length === 0)
+                                    ? null
+                                    : (this.state.attachments[n] || []).map(
+                                        (file, index) => {
+                                          return (
+                                            <Chip
+                                              key={index}
+                                              label={trimFilename(file)}
+                                              onClick={e =>
+                                                this.handleChipClick(e, file)
+                                              }
+                                              className={classes.chip}
+                                            />
+                                          );
+                                        }
+                                      )}
+                                </div>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -468,7 +515,53 @@ class FinancialAidPage extends React.Component {
             )}
             {auth.getRole() === "reviewer" ? (
               <div>
-                <WithAuthXlsxParser />
+                <div className={classes.simpleFlex}>
+                  <WithAuthXlsxParser />
+                  <Button
+                    className={classes.downloadButton}
+                    variant="raised"
+                    color="primary"
+                    onClick={() => {
+                      fetch(
+                        `/thank-letters?grade=${auth.getGrade()}&type=financialAid`,
+                        {
+                          method: "GET"
+                        }
+                      )
+                        .then(res => res.blob())
+                        .then(blob =>
+                          fileSaver.saveAs(
+                            blob,
+                            `助学金感谢信-无${auth.getGrade()}.zip`
+                          )
+                        );
+                    }}
+                  >
+                    下载感谢信
+                  </Button>
+                  <Button
+                    className={classes.downloadButton}
+                    variant="raised"
+                    color="primary"
+                    onClick={() => {
+                      fetch(
+                        `/e-forms?grade=${auth.getGrade()}&type=financialAid`,
+                        {
+                          method: "GET"
+                        }
+                      )
+                        .then(res => res.blob())
+                        .then(blob =>
+                          fileSaver.saveAs(
+                            blob,
+                            `助学金申请表-无${auth.getGrade()}.zip`
+                          )
+                        );
+                    }}
+                  >
+                    下载申请表
+                  </Button>
+                </div>
                 <div className={classes.chips}>
                   <Chip
                     className={classes.chip}

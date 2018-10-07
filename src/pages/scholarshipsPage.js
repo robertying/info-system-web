@@ -109,7 +109,8 @@ const styles = theme => ({
   },
   downloadButton: {
     height: 14,
-    marginTop: 24
+    marginTop: 24,
+    marginLeft: theme.spacing.unit
   }
 });
 
@@ -517,19 +518,44 @@ class ScholarshipsPage extends React.Component {
                     variant="raised"
                     color="primary"
                     onClick={() => {
-                      fetch(`/thank-letters?grade=${auth.getGrade()}`, {
-                        method: "GET"
-                      })
+                      fetch(
+                        `/thank-letters?grade=${auth.getGrade()}&type=scholarship`,
+                        {
+                          method: "GET"
+                        }
+                      )
                         .then(res => res.blob())
                         .then(blob =>
                           fileSaver.saveAs(
                             blob,
-                            `感谢信-无${auth.getGrade()}.zip`
+                            `奖学金感谢信-无${auth.getGrade()}.zip`
                           )
                         );
                     }}
                   >
                     下载感谢信
+                  </Button>
+                  <Button
+                    className={classes.downloadButton}
+                    variant="raised"
+                    color="primary"
+                    onClick={() => {
+                      fetch(
+                        `/e-forms?grade=${auth.getGrade()}&type=scholarship`,
+                        {
+                          method: "GET"
+                        }
+                      )
+                        .then(res => res.blob())
+                        .then(blob =>
+                          fileSaver.saveAs(
+                            blob,
+                            `奖学金申请表-无${auth.getGrade()}.zip`
+                          )
+                        );
+                    }}
+                  >
+                    下载申请表
                   </Button>
                 </div>
                 <div className={classes.chips}>
