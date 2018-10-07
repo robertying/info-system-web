@@ -91,10 +91,6 @@ const styles = theme => ({
   margin: {
     marginLeft: 8
   },
-  chip: {
-    margin: theme.spacing.unit / 2,
-    marginLeft: 0
-  },
   chips: {
     display: "flex",
     justifyContent: "left",
