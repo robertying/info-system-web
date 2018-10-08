@@ -682,8 +682,10 @@ class ScholarshipsPage extends React.Component {
                                               n.scholarship.status[key]
                                             }
                                             variant={
-                                              n.scholarship.contents &&
-                                              n.scholarship.contents[key]
+                                              (n.scholarship.contents &&
+                                                n.scholarship.contents[key]) ||
+                                              (n.scholarship.attachments &&
+                                                n.scholarship.attachments[key])
                                                 ? "default"
                                                 : "outlined"
                                             }

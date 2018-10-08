@@ -682,8 +682,10 @@ class FinancialAidPage extends React.Component {
                                               n.financialAid.status[key]
                                             }
                                             variant={
-                                              n.financialAid.contents &&
-                                              n.financialAid.contents[key]
+                                              (n.financialAid.contents &&
+                                                n.financialAid.contents[key]) ||
+                                              (n.financialAid.attachments &&
+                                                n.financialAid.attachments[key])
                                                 ? "default"
                                                 : "outlined"
                                             }
