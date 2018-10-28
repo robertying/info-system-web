@@ -132,8 +132,8 @@ class EventDialog extends React.Component {
           .get("Location")
           .split("/")
           .pop();
-        this.props.handleDialogClose(body);
         this.handleClose();
+        this.props.handleDialogClose(body);
         this.props.handleSnackbarPopup("新事件已创建");
       } else {
         this.props.handleSnackbarPopup("操作失败，请重试");
