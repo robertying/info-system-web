@@ -89,7 +89,9 @@ const styles = theme => ({
     marginLeft: 8
   },
   chip: {
-    marginLeft: theme.spacing.unit * 2
+    marginLeft: theme.spacing.unit * 2,
+    marginTop: 2,
+    marginBottom: 2
   },
   chips: {
     display: "flex",
@@ -128,6 +130,7 @@ class ScholarshipsPage extends React.Component {
     status: {},
     contents: {},
     attachments: {},
+    otherAttachments: {},
     event: {
       activeStep: 2
     },
@@ -173,6 +176,9 @@ class ScholarshipsPage extends React.Component {
             this.setState({
               attachments: res[0].scholarship.attachments || {}
             });
+            this.setState({
+              otherAttachments: res[0].scholarship.otherAttachments || {}
+            });
             this.setState({ applicationId: res[0].id });
           }
         });
@@ -210,7 +216,7 @@ class ScholarshipsPage extends React.Component {
     this.setState({ selectedScholarship: title });
   };
 
-  handleFileChange = e => {
+  handleFileChange = (e, type) => {
     const files = [];
     const array = Array.from(e.target.files);
     array.map(file => {
@@ -240,17 +246,30 @@ class ScholarshipsPage extends React.Component {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            scholarship: {
-              attachments: {
-                ...this.state.attachments,
-                [this.state.selectedScholarship]: attachments
-              }
-            }
-          })
+          body: JSON.stringify(
+            type === "attachments"
+              ? {
+                  scholarship: {
+                    attachments: {
+                      ...this.state.attachments,
+                      [this.state.selectedScholarship]: attachments
+                    }
+                  }
+                }
+              : {
+                  scholarship: {
+                    otherAttachments: {
+                      ...this.state.otherAttachments,
+                      [this.state.selectedScholarship]: attachments
+                    }
+                  }
+                }
+          )
         }).then(res => {
           if (res.ok) {
-            this.handleSnackbarPopup("申请表上传成功");
+            this.handleSnackbarPopup(
+              type === "attachments" ? "申请表上传成功" : "其他材料上传成功"
+            );
 
             fetch(`/applications/${this.state.applicationId}`, {
               method: "GET"
@@ -261,6 +280,12 @@ class ScholarshipsPage extends React.Component {
                 attachments[this.state.selectedScholarship] =
                   res.scholarship.attachments[this.state.selectedScholarship];
                 this.setState({ attachments });
+                let otherAttachments = this.state.otherAttachments;
+                otherAttachments[this.state.selectedScholarship] =
+                  res.scholarship.otherAttachments[
+                    this.state.selectedScholarship
+                  ];
+                this.setState({ otherAttachments });
               });
           } else {
             this.handleSnackbarPopup("上传失败，请重试");
@@ -429,8 +454,8 @@ class ScholarshipsPage extends React.Component {
                   <Table className={classes.table}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>奖学金</TableCell>
-                        <TableCell>金额</TableCell>
+                        <TableCell className={classes.cell}>奖学金</TableCell>
+                        <TableCell className={classes.cell}>金额</TableCell>
                         <TableCell>操作</TableCell>
                       </TableRow>
                     </TableHead>
@@ -438,8 +463,10 @@ class ScholarshipsPage extends React.Component {
                       {Object.keys(status).map((n, index) => {
                         return (
                           <TableRow key={index}>
-                            <TableCell>{n}</TableCell>
-                            <TableCell>{status[n]}</TableCell>
+                            <TableCell className={classes.cell}>{n}</TableCell>
+                            <TableCell className={classes.cell}>
+                              {status[n]}
+                            </TableCell>
                             <TableCell>
                               <ThankLetterDialogForScholarships
                                 id={this.state.applicationId}
@@ -459,12 +486,15 @@ class ScholarshipsPage extends React.Component {
                                 >
                                   <input
                                     className={classes.input}
-                                    id="contained-button-file"
+                                    id="button-form"
                                     type="file"
                                     name="file"
-                                    onChange={this.handleFileChange}
+                                    multiple
+                                    onChange={e =>
+                                      this.handleFileChange(e, "attachments")
+                                    }
                                   />
-                                  <label htmlFor="contained-button-file">
+                                  <label htmlFor="button-form">
                                     <Button
                                       disabled={scholarshipConfig.formRequired.every(
                                         x => !n.includes(x)
@@ -498,6 +528,51 @@ class ScholarshipsPage extends React.Component {
                                           );
                                         }
                                       )}
+                                </div>
+                              </div>
+                              <div className={classes.simpleFlex}>
+                                <div>
+                                  <input
+                                    className={classes.input}
+                                    id="button-others"
+                                    type="file"
+                                    name="file"
+                                    multiple
+                                    onChange={e =>
+                                      this.handleFileChange(
+                                        e,
+                                        "otherAttachments"
+                                      )
+                                    }
+                                  />
+                                  <label htmlFor="button-others">
+                                    <Button
+                                      color="primary"
+                                      component="span"
+                                      onClick={() => this.handleUpload(n)}
+                                    >
+                                      其他材料
+                                    </Button>
+                                  </label>
+                                </div>
+                                <div>
+                                  {!this.state.otherAttachments[n] ||
+                                  this.state.otherAttachments[n].length === 0
+                                    ? null
+                                    : (
+                                        this.state.otherAttachments[n] || []
+                                      ).map((file, index) => {
+                                        return (
+                                          <Chip
+                                            key={index}
+                                            label={trimFilename(file)}
+                                            onClick={e =>
+                                              this.handleChipClick(e, file)
+                                            }
+                                            className={classes.chip}
+                                          />
+                                        );
+                                      })}
                                 </div>
                               </div>
                             </TableCell>
@@ -556,6 +631,28 @@ class ScholarshipsPage extends React.Component {
                     }}
                   >
                     下载申请表
+                  </Button>
+                  <Button
+                    className={classes.downloadButton}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      fetch(
+                        `/other-materials?grade=${auth.getGrade()}&type=scholarship`,
+                        {
+                          method: "GET"
+                        }
+                      )
+                        .then(res => res.blob())
+                        .then(blob =>
+                          fileSaver.saveAs(
+                            blob,
+                            `奖学金其他材料-无${auth.getGrade()}.zip`
+                          )
+                        );
+                    }}
+                  >
+                    下载其他材料
                   </Button>
                 </div>
                 <div className={classes.chips}>

@@ -12,6 +12,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import withMobileDialog from "@material-ui/core/withMobileDialog";
+import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Chip from "@material-ui/core/Chip";
 import FileSaver from "file-saver";
@@ -58,7 +59,8 @@ class ThankLetterDialog extends React.Component {
       title: props.title,
       buttonDisabled: props.buttonDisabled,
       readOnly: props.readOnly,
-      attachments: []
+      attachments: [],
+      otherAttachments: []
     };
   }
 
@@ -83,6 +85,14 @@ class ThankLetterDialog extends React.Component {
         ) {
           this.setState({
             attachments: res.scholarship.attachments[this.state.title]
+          });
+        }
+        if (
+          res.scholarship.otherAttachments &&
+          res.scholarship.otherAttachments[this.state.title]
+        ) {
+          this.setState({
+            otherAttachments: res.scholarship.otherAttachments[this.state.title]
           });
         }
 
@@ -333,27 +343,49 @@ class ThankLetterDialog extends React.Component {
             >
               预览
             </Button>
-            <div className={classes.chips}>
-              {!scholarshipConfig.formRequired.every(
-                x => !this.state.title.includes(x)
-              ) && this.state.attachments.length === 0 ? (
-                <Chip
-                  label="未上传专用申请表！"
-                  className={classes.chip}
-                  color="secondary"
-                />
-              ) : (
-                this.state.attachments.map((file, index) => {
-                  return (
-                    <Chip
-                      key={index}
-                      label={trimFilename(file)}
-                      onClick={e => this.handleChipClick(e, file)}
-                      className={classes.chip}
-                    />
-                  );
-                })
-              )}
+            <div>
+              <Typography variant="h6">申请表</Typography>
+              <div className={classes.chips}>
+                {!scholarshipConfig.formRequired.every(
+                  x => !this.state.title.includes(x)
+                ) && this.state.attachments.length === 0 ? (
+                  <Chip
+                    label="未上传专用申请表！"
+                    className={classes.chip}
+                    color="secondary"
+                  />
+                ) : (
+                  this.state.attachments.map((file, index) => {
+                    return (
+                      <Chip
+                        key={index}
+                        label={trimFilename(file)}
+                        onClick={e => this.handleChipClick(e, file)}
+                        className={classes.chip}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </div>
+            <div>
+              <Typography variant="h6">其他材料</Typography>
+              <div className={classes.chips}>
+                {this.state.otherAttachments.length === 0 ? (
+                  <Chip label="未上传其他材料" className={classes.chip} />
+                ) : (
+                  this.state.otherAttachments.map((file, index) => {
+                    return (
+                      <Chip
+                        key={index}
+                        label={trimFilename(file)}
+                        onClick={e => this.handleChipClick(e, file)}
+                        className={classes.chip}
+                      />
+                    );
+                  })
+                )}
+              </div>
             </div>
           </DialogContent>
           {this.state.readOnly ? (
