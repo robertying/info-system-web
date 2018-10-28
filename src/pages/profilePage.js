@@ -81,14 +81,14 @@ class ProfilePage extends React.Component {
       })
       .then(res => {
         this.setState({
-          name: res.name,
-          id: res.id,
-          class: res.class,
-          email: res.email,
-          phone: res.phone,
-          degree: res.degree,
-          department: res.department,
-          grade: res.degree
+          name: res.name || "",
+          id: res.id || "",
+          class: res.class || "",
+          email: res.email || "",
+          phone: res.phone || "",
+          degree: res.degree || "",
+          department: res.department || "",
+          grade: res.degree || ""
         });
       });
   };
