@@ -38,8 +38,7 @@ const styles = theme => ({
   },
   logoImage: {
     width: "30%",
-    margin: 60,
-    marginTop: 30
+    margin: 20
   }
 });
 
