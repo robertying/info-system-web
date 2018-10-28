@@ -184,7 +184,7 @@ class NavigationDrawer extends React.Component {
               </IconButton>
               <Typography
                 className={classes.flexGrow}
-                variant="title"
+                variant="h6"
                 color="inherit"
                 noWrap
               >

@@ -348,7 +348,7 @@ class MatrialDialog extends React.Component {
             className={classes.button}
             onClick={this.handleClickOpen}
             color="primary"
-            variant="raised"
+            variant="contained"
             disabled={this.state.buttonDisabled}
           >
             提交申请材料
@@ -399,7 +399,7 @@ class MatrialDialog extends React.Component {
                 />
                 <label htmlFor="contained-button-file">
                   <Button
-                    variant="raised"
+                    variant="contained"
                     component="span"
                     className={classes.button}
                   >

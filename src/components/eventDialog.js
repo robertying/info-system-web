@@ -175,7 +175,7 @@ class EventDialog extends React.Component {
         <Button
           className={classes.button}
           onClick={this.handleClickOpen}
-          variant="raised"
+          variant="contained"
           color="primary"
         >
           新事件

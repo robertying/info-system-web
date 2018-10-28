@@ -423,7 +423,7 @@ class MentorsPage extends React.Component {
       return (
         <Button
           className={classes.flexButton}
-          variant="raised"
+          variant="contained"
           color="primary"
           onClick={this.handleTerminateButtonClick}
           disabled={this.state.terminateButtonDisabled}
@@ -444,7 +444,7 @@ class MentorsPage extends React.Component {
       <div className={classes.root}>
         <div className={classes.container}>
           <div className={classes.flex}>
-            <Typography variant="display2">新生导师</Typography>
+            <Typography variant="h3">新生导师</Typography>
             <div className={classes.flex}>
               <WithAuthNewEventDialog />
               <WithAuthDeleteEventButton />
@@ -518,7 +518,7 @@ class MentorsPage extends React.Component {
                           </Typography>
                           <Button
                             className={classes.flexButton}
-                            variant="raised"
+                            variant="contained"
                             color="primary"
                             onClick={() => this.handleConfirmDialogOpen(index)}
                             disabled={

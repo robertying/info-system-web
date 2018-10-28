@@ -164,7 +164,7 @@ class NoticeDialog extends React.Component {
 
     return (
       <div>
-        <Button onClick={this.handleClickOpen} variant="raised" color="primary">
+        <Button onClick={this.handleClickOpen} variant="contained" color="primary">
           新公告
         </Button>
         <Dialog
@@ -206,7 +206,7 @@ class NoticeDialog extends React.Component {
             />
             <label htmlFor="contained-button-file">
               <Button
-                variant="raised"
+                variant="contained"
                 component="span"
                 className={classes.button}
               >

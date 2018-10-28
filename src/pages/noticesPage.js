@@ -173,7 +173,7 @@ class NoticesPage extends React.Component {
         >
           <div className={classes.container}>
             <div className={classes.flex}>
-              <Typography variant="display2">公告</Typography>
+              <Typography variant="h3">公告</Typography>
               <NewNoticeDialog
                 handleDialogClose={this.handleNewNoticeDialogClose}
                 handleSnackbarPopup={this.handleSnackbarPopup}
@@ -222,7 +222,7 @@ class NoticesPage extends React.Component {
                           </DeleteButton>
                         </div>
                       </div>
-                      <Typography variant="headline" component="h2">
+                      <Typography variant="h5" component="h2">
                         {notice.title}
                       </Typography>
                       <Typography

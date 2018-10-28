@@ -265,7 +265,7 @@ class XLSXParser extends React.Component {
           <label htmlFor="contained-button-file">
             <Button
               color="primary"
-              variant="raised"
+              variant="contained"
               component="span"
               className={classes.button}
             >

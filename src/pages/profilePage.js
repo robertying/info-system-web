@@ -158,7 +158,7 @@ class ProfilePage extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.container}>
-          <Typography variant="display2">个人信息</Typography>
+          <Typography variant="h3">个人信息</Typography>
           <Paper className={classes.paper}>
             <List>
               <div>
@@ -282,7 +282,7 @@ class ProfilePage extends React.Component {
             </List>
             <Button
               className={classes.button}
-              variant="raised"
+              variant="contained"
               color="primary"
               onClick={this.handleSubmit}
             >

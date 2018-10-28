@@ -47,12 +47,12 @@ class AboutPage extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.container}>
-          <Typography className={classes.title} variant="display2">
+          <Typography className={classes.title} variant="h3">
             关于
           </Typography>
 
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               版本
             </Typography>
             <Chip
@@ -66,7 +66,7 @@ class AboutPage extends React.Component {
             />
           </Paper>
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               技术栈
             </Typography>
             <Chip
@@ -95,7 +95,7 @@ class AboutPage extends React.Component {
             />
           </Paper>
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               顾问
             </Typography>
             <Chip
@@ -116,7 +116,7 @@ class AboutPage extends React.Component {
             />
           </Paper>
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               策划
             </Typography>
             <Chip
@@ -136,7 +136,7 @@ class AboutPage extends React.Component {
             />
           </Paper>
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               当前开发者
             </Typography>
             <Chip
@@ -148,7 +148,7 @@ class AboutPage extends React.Component {
             />
           </Paper>
           <Paper className={classes.paper}>
-            <Typography className={classes.title} variant="title">
+            <Typography className={classes.title} variant="h6">
               历史开发者
             </Typography>
             <Chip

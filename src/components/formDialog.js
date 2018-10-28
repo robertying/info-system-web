@@ -219,7 +219,7 @@ class FormDialog extends React.Component {
             />
             <label htmlFor="contained-button-file">
               <Button
-                variant="raised"
+                variant="contained"
                 component="span"
                 className={classes.button}
               >

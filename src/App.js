@@ -17,6 +17,7 @@ import Snackbar from "./components/consecutiveSnackbars";
 
 const theme = createMuiTheme({
   typography: {
+    useNextVariants: true,
     fontFamily: '"Noto Sans", "Noto Sans SC Sliced", sans-serif'
   }
 });

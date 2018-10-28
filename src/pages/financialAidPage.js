@@ -404,7 +404,7 @@ class FinancialAidPage extends React.Component {
       <div className={classes.root}>
         <div className={classes.container}>
           <div className={classes.flex}>
-            <Typography variant="display2">助学金</Typography>
+            <Typography variant="h3">助学金</Typography>
             <div className={classes.flex}>
               <WithAuthNewEventDialog />
               <WithAuthDeleteEventButton />
@@ -515,7 +515,7 @@ class FinancialAidPage extends React.Component {
                   <WithAuthXlsxParser />
                   <Button
                     className={classes.downloadButton}
-                    variant="raised"
+                    variant="contained"
                     color="primary"
                     onClick={() => {
                       fetch(
@@ -537,7 +537,7 @@ class FinancialAidPage extends React.Component {
                   </Button>
                   <Button
                     className={classes.downloadButton}
-                    variant="raised"
+                    variant="contained"
                     color="primary"
                     onClick={() => {
                       fetch(

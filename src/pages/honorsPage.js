@@ -524,7 +524,7 @@ class HonorsPage extends React.Component {
       <div className={classes.root}>
         <div className={classes.container}>
           <div className={classes.flex}>
-            <Typography variant="display2">荣誉</Typography>
+            <Typography variant="h3">荣誉</Typography>
             <div className={classes.flex}>
               <WithAuthNewEventDialog />
               <WithAuthDeleteEventButton />
@@ -572,7 +572,7 @@ class HonorsPage extends React.Component {
               <Paper className={classes.paper}>
                 <Card>
                   <CardContent>
-                    <Typography variant="headline" component="h2">
+                    <Typography variant="h5" component="h2">
                       申请材料
                     </Typography>
                     <Typography component="p" className={classes.linebreak}>

@@ -178,7 +178,7 @@ class XLSXGenerator extends React.Component {
       <div>
         <Button
           color="primary"
-          variant="raised"
+          variant="contained"
           component="span"
           className={classes.button}
           onClick={this.handleClick}

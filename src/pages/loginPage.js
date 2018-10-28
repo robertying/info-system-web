@@ -112,7 +112,7 @@ class LoginPage extends React.Component {
       <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="title" color="inherit" noWrap>
+            <Typography variant="h6" color="inherit" noWrap>
               <Hidden mdUp>信息管理系统</Hidden>
               <Hidden smDown>信息管理系统・清华大学电子工程系</Hidden>
             </Typography>
@@ -165,7 +165,7 @@ class LoginPage extends React.Component {
               </div>
               <Button
                 className={classes.button}
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={this.handleFormSubmit}
               >
@@ -217,7 +217,7 @@ class LoginPage extends React.Component {
               </div>
               <Button
                 className={classes.button}
-                variant="raised"
+                variant="contained"
                 color="primary"
                 onClick={this.handleFormSubmit}
               >

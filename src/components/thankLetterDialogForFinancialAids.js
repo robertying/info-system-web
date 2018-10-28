@@ -328,7 +328,7 @@ class ThankLetterDialog extends React.Component {
             <Button
               className={classes.button}
               color="primary"
-              variant="raised"
+              variant="contained"
               onClick={this.handlePreviewButtonClick}
             >
               预览

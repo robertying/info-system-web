@@ -73,7 +73,7 @@ class ProgressStepper extends React.Component {
         <div className={classes.buttons}>
           <Button
             className={classes.button}
-            variant="raised"
+            variant="contained"
             color="primary"
             onClick={this.handleClickBackward}
           >
@@ -81,7 +81,7 @@ class ProgressStepper extends React.Component {
           </Button>
           <Button
             className={classes.button}
-            variant="raised"
+            variant="contained"
             color="primary"
             onClick={this.handleClickForward}
           >
