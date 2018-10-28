@@ -247,7 +247,7 @@ class ThankLetterDialog extends React.Component {
       })
       .then(blob => {
         if (blob) {
-          FileSaver.saveAs(blob, "感谢信.pdf");
+          FileSaver.saveAs(blob, "感谢信.docx");
         } else {
           this.props.handleSnackbarPopup("请先提交感谢信内容");
         }
@@ -293,7 +293,7 @@ class ThankLetterDialog extends React.Component {
           <DialogContent>
             {this.state.readOnly ? null : (
               <DialogContentText>
-                请参考感谢信要求填写相应内容，提交后再次打开窗口点击“预览”可查看感谢信生成结果。请确保最终提交内容中的称呼、说辞、格式等正确无误。
+                请参考感谢信要求填写相应内容，提交后点击“预览”可查看感谢信生成结果。请确保最终提交内容中的称呼、说辞、格式等正确无误。
               </DialogContentText>
             )}
             <TextField
