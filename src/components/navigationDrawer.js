@@ -58,6 +58,7 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
     width: 240,
+    height: "100vh",
     [theme.breakpoints.up("md")]: {
       position: "relative"
     }
