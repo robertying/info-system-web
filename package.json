@@ -1,6 +1,6 @@
 {
   "name": "info-system-web",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "Web frontend for the Information System of EE, Tsinghua University",
   "author": "Robert Ying <yingrui205@gmail.com>",
   "private": true,
@@ -32,5 +32,11 @@
     "prettier": "latest",
     "source-map-explorer": "latest"
   },
-  "proxy": "http://localhost:3001/api"
+  "proxy": "http://localhost:3001/api",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
