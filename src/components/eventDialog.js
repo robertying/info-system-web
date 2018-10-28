@@ -13,7 +13,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import withMobileDialog from "@material-ui/core/withMobileDialog";
 import { withStyles } from "@material-ui/core/styles";
 import auth from "../helpers/auth";
-import MuiPickersUtilsProvider from "material-ui-pickers/utils/MuiPickersUtilsProvider";
+import MuiPickersUtilsProvider from "material-ui-pickers/MuiPickersUtilsProvider";
 import DateFnsUtils from "material-ui-pickers/utils/date-fns-utils";
 import DateTimePicker from "material-ui-pickers/DateTimePicker";
 import CNLocale from "date-fns/locale/zh-CN";
@@ -95,46 +95,30 @@ class EventDialog extends React.Component {
     /**
      * 事件种类
      */
-    const body =
+    const title =
       this.props.type === "mentor"
-        ? {
-            type: "mentor",
-            title: "新生导师申请",
-            steps: this.state.stepContents.map((n, index) => {
-              return `${n}\n起 ${format(
-                this.state.selectedBeginDate[index],
-                "yyyy-MM-dd HH:mm",
-                { locale: CNLocale }
-              )}\n止 ${format(
-                this.state.selectedEndDate[index],
-                "yyyy-MM-dd HH:mm",
-                {
-                  locale: CNLocale
-                }
-              )}`;
-            }),
-            activeStep: 0
-          }
+        ? "新生导师申请"
         : this.props.type === "honor"
-          ? {
-              type: "honor",
-              title: "荣誉申请",
-              steps: this.state.stepContents.map((n, index) => {
-                return `${n}\n起 ${format(
-                  this.state.selectedBeginDate[index],
-                  "yyyy-MM-dd HH:mm",
-                  { locale: CNLocale }
-                )}\n止 ${format(
-                  this.state.selectedEndDate[index],
-                  "yyyy-MM-dd HH:mm",
-                  {
-                    locale: CNLocale
-                  }
-                )}`;
-              }),
-              activeStep: 0
-            }
-          : null;
+          ? "荣誉申请"
+          : this.props.type === "scholarship"
+            ? "奖学金申请"
+            : this.props.type === "financialAid"
+              ? "助学金申请"
+              : null;
+    const body = {
+      type: this.props.type,
+      title: title,
+      steps: this.state.stepContents.map((n, index) => {
+        return `${n}\n起 ${format(
+          this.state.selectedBeginDate[index],
+          "yyyy-MM-dd HH:mm",
+          { locale: CNLocale }
+        )}\n止 ${format(this.state.selectedEndDate[index], "yyyy-MM-dd HH:mm", {
+          locale: CNLocale
+        })}`;
+      }),
+      activeStep: 0
+    };
 
     return fetch("/events", {
       method: "POST",
