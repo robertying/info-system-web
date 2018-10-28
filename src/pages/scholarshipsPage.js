@@ -593,19 +593,31 @@ class ScholarshipsPage extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      fetch(
-                        `/thank-letters?grade=${auth.getGrade()}&type=scholarship`,
-                        {
-                          method: "GET"
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(`/thank-letters?grade=${i}&type=scholarship`, {
+                            method: "GET"
+                          })
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(blob, `奖学金感谢信-无${i}.zip`)
+                            );
                         }
-                      )
-                        .then(res => res.blob())
-                        .then(blob =>
-                          fileSaver.saveAs(
-                            blob,
-                            `奖学金感谢信-无${auth.getGrade()}.zip`
-                          )
-                        );
+                      } else {
+                        fetch(
+                          `/thank-letters?grade=${auth.getGrade()}&type=scholarship`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `奖学金感谢信-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
                     }}
                   >
                     下载感谢信
@@ -615,19 +627,31 @@ class ScholarshipsPage extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      fetch(
-                        `/e-forms?grade=${auth.getGrade()}&type=scholarship`,
-                        {
-                          method: "GET"
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(`/e-forms?grade=${i}&type=scholarship`, {
+                            method: "GET"
+                          })
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(blob, `奖学金申请表-无${i}.zip`)
+                            );
                         }
-                      )
-                        .then(res => res.blob())
-                        .then(blob =>
-                          fileSaver.saveAs(
-                            blob,
-                            `奖学金申请表-无${auth.getGrade()}.zip`
-                          )
-                        );
+                      } else {
+                        fetch(
+                          `/e-forms?grade=${auth.getGrade()}&type=scholarship`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `奖学金申请表-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
                     }}
                   >
                     下载申请表
@@ -637,19 +661,37 @@ class ScholarshipsPage extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      fetch(
-                        `/other-materials?grade=${auth.getGrade()}&type=scholarship`,
-                        {
-                          method: "GET"
-                        }
-                      )
-                        .then(res => res.blob())
-                        .then(blob =>
-                          fileSaver.saveAs(
-                            blob,
-                            `奖学金其他材料-无${auth.getGrade()}.zip`
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(
+                            `/other-materials?grade=${i}&type=scholarship`,
+                            {
+                              method: "GET"
+                            }
                           )
-                        );
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(
+                                blob,
+                                `奖学金其他材料-无${i}.zip`
+                              )
+                            );
+                        }
+                      } else {
+                        fetch(
+                          `/other-materials?grade=${auth.getGrade()}&type=scholarship`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `奖学金其他材料-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
                     }}
                   >
                     下载其他材料
