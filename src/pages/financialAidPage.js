@@ -442,6 +442,9 @@ class FinancialAidPage extends React.Component {
                             <TableCell>{status[n]}</TableCell>
                             <TableCell>
                               <ThankLetterDialogForFinancialAids
+                                disabled={Object.keys(
+                                  scholarshipConfig.thanksSalutations
+                                ).every(x => !n.includes(x))}
                                 id={this.state.applicationId}
                                 title={n}
                                 readOnly={auth.getRole() !== "student"}

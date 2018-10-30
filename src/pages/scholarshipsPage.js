@@ -469,6 +469,9 @@ class ScholarshipsPage extends React.Component {
                             </TableCell>
                             <TableCell>
                               <ThankLetterDialogForScholarships
+                                disabled={Object.keys(
+                                  scholarshipConfig.thanksSalutations
+                                ).every(x => !n.includes(x))}
                                 id={this.state.applicationId}
                                 title={n}
                                 readOnly={auth.getRole() !== "student"}

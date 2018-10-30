@@ -277,7 +277,11 @@ class ThankLetterDialog extends React.Component {
             onClick={this.handleClickOpen}
           />
         ) : (
-          <Button onClick={this.handleClickOpen} color="primary">
+          <Button
+            onClick={this.handleClickOpen}
+            disabled={this.props.disabled}
+            color="primary"
+          >
             感谢信
           </Button>
         )}
