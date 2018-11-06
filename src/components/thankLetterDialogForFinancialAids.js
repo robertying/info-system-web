@@ -12,12 +12,13 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import withMobileDialog from "@material-ui/core/withMobileDialog";
+import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Chip from "@material-ui/core/Chip";
 import FileSaver from "file-saver";
 import { download, trimFilename } from "../helpers/file";
 import auth from "../helpers/auth";
-import scholarshipConfig from "../config/scholarships";
+import financialAidConfig from "../config/financialAids";
 
 const fetch = auth.authedFetch;
 
@@ -58,7 +59,8 @@ class ThankLetterDialog extends React.Component {
       title: props.title,
       buttonDisabled: props.buttonDisabled,
       readOnly: props.readOnly,
-      attachments: []
+      attachments: [],
+      otherAttachments: []
     };
   }
 
@@ -85,6 +87,15 @@ class ThankLetterDialog extends React.Component {
             attachments: res.financialAid.attachments[this.state.title]
           });
         }
+        if (
+          res.financialAid.otherAttachments &&
+          res.financialAid.otherAttachments[this.state.title]
+        ) {
+          this.setState({
+            otherAttachments:
+              res.financialAid.otherAttachments[this.state.title]
+          });
+        }
 
         const contents = res.financialAid.contents || {};
         if (contents[this.state.title]) {
@@ -95,13 +106,13 @@ class ThankLetterDialog extends React.Component {
           });
         } else {
           const thanksSalutationsKeys = Object.keys(
-            scholarshipConfig.thanksSalutations
+            financialAidConfig.thanksSalutations
           );
           for (let index = 0; index < thanksSalutationsKeys.length; index++) {
             const key = thanksSalutationsKeys[index];
             if (this.state.title.includes(key)) {
               this.setState({
-                salutation: scholarshipConfig.thanksSalutations[key],
+                salutation: financialAidConfig.thanksSalutations[key],
                 status: "未提交"
               });
               break;
@@ -140,7 +151,7 @@ class ThankLetterDialog extends React.Component {
           choice === "yes" ? "已通过" : "未通过"
         );
         this.handleClose();
-        this.props.handleSnackbarPopup("奖学金材料审核状态已更新");
+        this.props.handleSnackbarPopup("助学金材料审核状态已更新");
       } else {
         this.props.handleSnackbarPopup("操作失败，请重试");
       }
@@ -337,27 +348,49 @@ class ThankLetterDialog extends React.Component {
             >
               预览
             </Button>
-            <div className={classes.chips}>
-              {!scholarshipConfig.formRequired.every(
-                x => !this.state.title.includes(x)
-              ) && this.state.attachments.length === 0 ? (
-                <Chip
-                  label="未上传专用申请表！"
-                  className={classes.chip}
-                  color="secondary"
-                />
-              ) : (
-                this.state.attachments.map((file, index) => {
-                  return (
-                    <Chip
-                      key={index}
-                      label={trimFilename(file)}
-                      onClick={e => this.handleChipClick(e, file)}
-                      className={classes.chip}
-                    />
-                  );
-                })
-              )}
+            <div>
+              <Typography variant="h6">申请表</Typography>
+              <div className={classes.chips}>
+                {!financialAidConfig.formRequired.every(
+                  x => !this.state.title.includes(x)
+                ) && this.state.attachments.length === 0 ? (
+                  <Chip
+                    label="未上传专用申请表！"
+                    className={classes.chip}
+                    color="secondary"
+                  />
+                ) : (
+                  this.state.attachments.map((file, index) => {
+                    return (
+                      <Chip
+                        key={index}
+                        label={trimFilename(file)}
+                        onClick={e => this.handleChipClick(e, file)}
+                        className={classes.chip}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </div>
+            <div>
+              <Typography variant="h6">其他材料</Typography>
+              <div className={classes.chips}>
+                {this.state.otherAttachments.length === 0 ? (
+                  <Chip label="未上传其他材料" className={classes.chip} />
+                ) : (
+                  this.state.otherAttachments.map((file, index) => {
+                    return (
+                      <Chip
+                        key={index}
+                        label={trimFilename(file)}
+                        onClick={e => this.handleChipClick(e, file)}
+                        className={classes.chip}
+                      />
+                    );
+                  })
+                )}
+              </div>
             </div>
           </DialogContent>
           {this.state.readOnly ? (

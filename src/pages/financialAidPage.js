@@ -28,7 +28,7 @@ import ThankLetterDialogForFinancialAids from "../components/thankLetterDialogFo
 import XlsxParser from "../components/xlsxParser";
 import { trimFilename, upload, download } from "../helpers/file";
 import auth from "../helpers/auth";
-import scholarshipConfig from "../config/scholarships";
+import financialAidConfig from "../config/financialAids";
 import fileSaver from "file-saver";
 
 const fetch = auth.authedFetch;
@@ -74,9 +74,6 @@ const styles = theme => ({
     width: 75,
     fontSize: 12
   },
-  chip: {
-    marginLeft: theme.spacing.unit * 2
-  },
   text: {
     margin: theme.spacing.unit * 2
   },
@@ -90,6 +87,11 @@ const styles = theme => ({
   },
   margin: {
     marginLeft: 8
+  },
+  chip: {
+    marginLeft: theme.spacing.unit * 2,
+    marginTop: 2,
+    marginBottom: 2
   },
   chips: {
     display: "flex",
@@ -128,6 +130,7 @@ class FinancialAidPage extends React.Component {
     status: {},
     contents: {},
     attachments: {},
+    otherAttachments: {},
     event: {
       activeStep: 2
     },
@@ -173,6 +176,9 @@ class FinancialAidPage extends React.Component {
             this.setState({
               attachments: res[0].financialAid.attachments || {}
             });
+            this.setState({
+              otherAttachments: res[0].financialAid.otherAttachments || {}
+            });
             this.setState({ applicationId: res[0].id });
           }
         });
@@ -210,7 +216,7 @@ class FinancialAidPage extends React.Component {
     this.setState({ selectedFinancialAid: title });
   };
 
-  handleFileChange = e => {
+  handleFileChange = (e, type) => {
     const files = [];
     const array = Array.from(e.target.files);
     array.map(file => {
@@ -240,17 +246,30 @@ class FinancialAidPage extends React.Component {
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            financialAid: {
-              attachments: {
-                ...this.state.attachments,
-                [this.state.selectedFinancialAid]: attachments
-              }
-            }
-          })
+          body: JSON.stringify(
+            type === "attachments"
+              ? {
+                  financialAid: {
+                    attachments: {
+                      ...this.state.attachments,
+                      [this.state.selectedFinancialAid]: attachments
+                    }
+                  }
+                }
+              : {
+                  financialAid: {
+                    otherAttachments: {
+                      ...this.state.otherAttachments,
+                      [this.state.selectedFinancialAid]: attachments
+                    }
+                  }
+                }
+          )
         }).then(res => {
           if (res.ok) {
-            this.handleSnackbarPopup("申请表上传成功");
+            this.handleSnackbarPopup(
+              type === "attachments" ? "申请表上传成功" : "其他材料上传成功"
+            );
 
             fetch(`/applications/${this.state.applicationId}`, {
               method: "GET"
@@ -261,6 +280,12 @@ class FinancialAidPage extends React.Component {
                 attachments[this.state.selectedFinancialAid] =
                   res.financialAid.attachments[this.state.selectedFinancialAid];
                 this.setState({ attachments });
+                let otherAttachments = this.state.otherAttachments;
+                otherAttachments[this.state.selectedFinancialAid] =
+                  res.financialAid.otherAttachments[
+                    this.state.selectedFinancialAid
+                  ];
+                this.setState({ otherAttachments });
               });
           } else {
             this.handleSnackbarPopup("上传失败，请重试");
@@ -429,8 +454,8 @@ class FinancialAidPage extends React.Component {
                   <Table className={classes.table}>
                     <TableHead>
                       <TableRow>
-                        <TableCell>助学金</TableCell>
-                        <TableCell>金额</TableCell>
+                        <TableCell className={classes.cell}>助学金</TableCell>
+                        <TableCell className={classes.cell}>金额</TableCell>
                         <TableCell>操作</TableCell>
                       </TableRow>
                     </TableHead>
@@ -438,12 +463,14 @@ class FinancialAidPage extends React.Component {
                       {Object.keys(status).map((n, index) => {
                         return (
                           <TableRow key={index}>
-                            <TableCell>{n}</TableCell>
-                            <TableCell>{status[n]}</TableCell>
+                            <TableCell className={classes.cell}>{n}</TableCell>
+                            <TableCell className={classes.cell}>
+                              {status[n]}
+                            </TableCell>
                             <TableCell>
                               <ThankLetterDialogForFinancialAids
                                 disabled={Object.keys(
-                                  scholarshipConfig.thanksSalutations
+                                  financialAidConfig.thanksSalutations
                                 ).every(x => !n.includes(x))}
                                 id={this.state.applicationId}
                                 title={n}
@@ -453,7 +480,7 @@ class FinancialAidPage extends React.Component {
                               <div className={classes.simpleFlex}>
                                 <div
                                   className={
-                                    scholarshipConfig.formRequired.every(
+                                    financialAidConfig.formRequired.every(
                                       x => !n.includes(x)
                                     )
                                       ? classes.unclickable
@@ -462,14 +489,17 @@ class FinancialAidPage extends React.Component {
                                 >
                                   <input
                                     className={classes.input}
-                                    id="contained-button-file"
+                                    id="button-form"
                                     type="file"
                                     name="file"
-                                    onChange={this.handleFileChange}
+                                    multiple
+                                    onChange={e =>
+                                      this.handleFileChange(e, "attachments")
+                                    }
                                   />
-                                  <label htmlFor="contained-button-file">
+                                  <label htmlFor="button-form">
                                     <Button
-                                      disabled={scholarshipConfig.formRequired.every(
+                                      disabled={financialAidConfig.formRequired.every(
                                         x => !n.includes(x)
                                       )}
                                       color="primary"
@@ -481,7 +511,7 @@ class FinancialAidPage extends React.Component {
                                   </label>
                                 </div>
                                 <div>
-                                  {!scholarshipConfig.formRequired.every(
+                                  {!financialAidConfig.formRequired.every(
                                     x => !n.includes(x)
                                   ) &&
                                   (!this.state.attachments[n] ||
@@ -503,6 +533,51 @@ class FinancialAidPage extends React.Component {
                                       )}
                                 </div>
                               </div>
+                              <div className={classes.simpleFlex}>
+                                <div>
+                                  <input
+                                    className={classes.input}
+                                    id="button-others"
+                                    type="file"
+                                    name="file"
+                                    multiple
+                                    onChange={e =>
+                                      this.handleFileChange(
+                                        e,
+                                        "otherAttachments"
+                                      )
+                                    }
+                                  />
+                                  <label htmlFor="button-others">
+                                    <Button
+                                      color="primary"
+                                      component="span"
+                                      onClick={() => this.handleUpload(n)}
+                                    >
+                                      其他材料
+                                    </Button>
+                                  </label>
+                                </div>
+                                <div>
+                                  {!this.state.otherAttachments[n] ||
+                                  this.state.otherAttachments[n].length === 0
+                                    ? null
+                                    : (
+                                        this.state.otherAttachments[n] || []
+                                      ).map((file, index) => {
+                                        return (
+                                          <Chip
+                                            key={index}
+                                            label={trimFilename(file)}
+                                            onClick={e =>
+                                              this.handleChipClick(e, file)
+                                            }
+                                            className={classes.chip}
+                                          />
+                                        );
+                                      })}
+                                </div>
+                              </div>
                             </TableCell>
                           </TableRow>
                         );
@@ -521,19 +596,31 @@ class FinancialAidPage extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      fetch(
-                        `/thank-letters?grade=${auth.getGrade()}&type=financialAid`,
-                        {
-                          method: "GET"
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(`/thank-letters?grade=${i}&type=financialAid`, {
+                            method: "GET"
+                          })
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(blob, `助学金感谢信-无${i}.zip`)
+                            );
                         }
-                      )
-                        .then(res => res.blob())
-                        .then(blob =>
-                          fileSaver.saveAs(
-                            blob,
-                            `助学金感谢信-无${auth.getGrade()}.zip`
-                          )
-                        );
+                      } else {
+                        fetch(
+                          `/thank-letters?grade=${auth.getGrade()}&type=financialAid`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `助学金感谢信-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
                     }}
                   >
                     下载感谢信
@@ -543,22 +630,74 @@ class FinancialAidPage extends React.Component {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      fetch(
-                        `/e-forms?grade=${auth.getGrade()}&type=financialAid`,
-                        {
-                          method: "GET"
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(`/e-forms?grade=${i}&type=financialAid`, {
+                            method: "GET"
+                          })
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(blob, `助学金申请表-无${i}.zip`)
+                            );
                         }
-                      )
-                        .then(res => res.blob())
-                        .then(blob =>
-                          fileSaver.saveAs(
-                            blob,
-                            `助学金申请表-无${auth.getGrade()}.zip`
-                          )
-                        );
+                      } else {
+                        fetch(
+                          `/e-forms?grade=${auth.getGrade()}&type=financialAid`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `助学金申请表-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
                     }}
                   >
                     下载申请表
+                  </Button>
+                  <Button
+                    className={classes.downloadButton}
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      if (auth.getGrade() === "undefined") {
+                        for (let i = 5; i < 9; ++i) {
+                          fetch(
+                            `/other-materials?grade=${i}&type=financialAid`,
+                            {
+                              method: "GET"
+                            }
+                          )
+                            .then(res => res.blob())
+                            .then(blob =>
+                              fileSaver.saveAs(
+                                blob,
+                                `助学金其他材料-无${i}.zip`
+                              )
+                            );
+                        }
+                      } else {
+                        fetch(
+                          `/other-materials?grade=${auth.getGrade()}&type=financialAid`,
+                          {
+                            method: "GET"
+                          }
+                        )
+                          .then(res => res.blob())
+                          .then(blob =>
+                            fileSaver.saveAs(
+                              blob,
+                              `助学金其他材料-无${auth.getGrade()}.zip`
+                            )
+                          );
+                      }
+                    }}
+                  >
+                    下载其他材料
                   </Button>
                 </div>
                 <div className={classes.chips}>
